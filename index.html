@@ -4,7 +4,348 @@
   <meta charset="UTF-8" />
   <title>GalaxyBrowserV2 - by William</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <style>
+  <style>/* =============================== */
+/* GLOBAL + BACKGROUND             */
+/* =============================== */
+
+body {
+    margin: 0;
+    padding: 0;
+    background: black;
+    font-family: Arial, sans-serif;
+    color: white;
+    overflow: hidden;
+}
+
+/* Starfield background */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: radial-gradient(circle at center, #111 0%, #000 70%);
+    z-index: -2;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-image: url('https://i.imgur.com/9aKQX9T.png');
+    opacity: 0.25;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* =============================== */
+/* TOP BAR + COLLAPSIBLE           */
+/* =============================== */
+
+.top-bar {
+    width: 100%;
+    background: rgba(20, 20, 20, 0.9);
+    border-bottom: 2px solid #0ff;
+    padding: 10px;
+    box-sizing: border-box;
+    transition: transform 0.3s ease;
+}
+
+.top-bar.collapsed {
+    transform: translateY(-100%);
+}
+
+.url-container {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.url-container input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #0ff;
+    background: black;
+    color: #0ff;
+}
+
+.go-btn, .collapse-btn {
+    padding: 8px 12px;
+    background: #0ff;
+    color: black;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* =============================== */
+/* TAB BAR                         */
+/* =============================== */
+
+.tab-bar {
+    display: flex;
+    gap: 10px;
+}
+
+.tab-btn {
+    padding: 8px 14px;
+    background: #111;
+    border: 1px solid #0ff;
+    color: #0ff;
+    cursor: pointer;
+}
+
+.tab-btn.active {
+    background: #0ff;
+    color: black;
+}
+
+/* =============================== */
+/* MAIN CONTENT AREA               */
+/* =============================== */
+
+.main-content {
+    position: absolute;
+    top: 90px;
+    bottom: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
+.tab-page {
+    display: none;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.tab-page.active {
+    display: block;
+}
+
+/* =============================== */
+/* WEB TAB                         */
+/* =============================== */
+
+#browserFrame {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* =============================== */
+/* CHAT FULL PAGE                  */
+/* =============================== */
+
+.chat-full-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    background: rgba(0, 255, 255, 0.05);
+    border: 1px solid #0ff;
+    padding: 10px;
+}
+
+.chat-input-area {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 8px;
+    background: black;
+    border: 1px solid #0ff;
+    color: #0ff;
+}
+
+.chat-input-area button {
+    padding: 8px 14px;
+    background: #0ff;
+    color: black;
+    border: none;
+    cursor: pointer;
+}
+
+.chat-warning {
+    margin-top: 10px;
+    color: #f33;
+    font-weight: bold;
+    display: none;
+}
+
+/* =============================== */
+/* SLIDE-OUT CHAT PANEL            */
+/* =============================== */
+
+.chat-panel {
+    position: fixed;
+    right: -350px;
+    top: 0;
+    width: 350px;
+    height: 100%;
+    background: rgba(10, 10, 10, 0.95);
+    border-left: 2px solid #0ff;
+    transition: right 0.3s ease;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.chat-panel.open {
+    right: 0;
+}
+
+/* =============================== */
+/* CHAT TOGGLE BUTTON              */
+/* =============================== */
+
+.chat-toggle-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 14px 20px;
+    background: #0ff;
+    color: black;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius: 30px;
+    transition: 0.3s;
+}
+
+/* Orb style */
+.chat-toggle-btn.orb {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    padding: 0;
+    font-size: 14px;
+}
+
+/* =============================== */
+/* ACCOUNT SYSTEM PAGES            */
+/* =============================== */
+
+.account-page {
+    display: none;
+}
+
+.account-page.active {
+    display: block;
+}
+
+.account-page input,
+.account-page select {
+    width: 100%;
+    padding: 10px;
+    margin: 8px 0;
+    background: black;
+    border: 1px solid #0ff;
+    color: #0ff;
+}
+
+.account-page button {
+    width: 100%;
+    padding: 10px;
+    background: #0ff;
+    color: black;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.link {
+    color: #0ff;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-top: 10px;
+}
+
+/* =============================== */
+/* ADMIN PANEL                     */
+/* =============================== */
+
+.admin-page {
+    display: none;
+}
+
+.admin-page.active {
+    display: block;
+}
+
+.admin-messages {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid #0ff;
+    padding: 10px;
+    background: rgba(0,255,255,0.05);
+}
+
+.admin-messages .msg {
+    border-bottom: 1px solid #0ff;
+    padding: 6px 0;
+}
+
+.admin-messages button {
+    margin-left: 10px;
+    padding: 4px 8px;
+    background: #f33;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.error {
+    color: #f33;
+    font-weight: bold;
+}
+
+/* =============================== */
+/* SETTINGS PANEL                  */
+/* =============================== */
+
+.settings-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    padding: 20px;
+    background: rgba(10,10,10,0.95);
+    border: 2px solid #0ff;
+    transform: translate(-50%, -50%);
+    display: none;
+}
+
+.settings-panel select,
+.settings-panel button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+}
+
+/* =============================== */
+/* SCROLLBAR STYLE                 */
+/* =============================== */
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #0ff;
+}
+
+::-webkit-scrollbar-track {
+    background: #111;
+}
     :root {
       --bg-main: #020515;
       --bg-panel: #050818;
@@ -1836,6 +2177,416 @@
 
     // INITIAL HISTORY
     pushHistory("https://williampitcher347-sys.github.io/Galaxia-store/");
-  </script>
+  </script><script>
+/* ============================================================
+   GALAXYBROWSERV2 ULTRA — FULL JAVASCRIPT ENGINE
+   ============================================================ */
+
+/* ------------------------------------------------------------
+   GLOBAL STATE
+------------------------------------------------------------ */
+let currentUser = null;
+let isAdmin = false;
+
+const API_URL = "https://64f7e8f9824680fd217f6e4a.mockapi.io/messages"; // Replace if needed
+
+/* Load saved state */
+window.addEventListener("load", () => {
+    currentUser = localStorage.getItem("gbv2_current_user");
+    isAdmin = localStorage.getItem("gbv2_is_admin") === "true";
+
+    updateChatAccess();
+    updateAdminUI();
+    loadBannedUsers();
+    loadDeletedMessages();
+    loadChatMessages();
+});
+
+/* ============================================================
+   UTILITY: SHA-256 HASHING
+============================================================ */
+async function hash(text) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(text);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    return Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+}
+
+/* ============================================================
+   TAB SWITCHING
+============================================================ */
+document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        document.querySelectorAll(".tab-page").forEach(p => p.classList.remove("active"));
+        document.getElementById(btn.dataset.tab).classList.add("active");
+    });
+});
+
+/* ============================================================
+   URL BAR + COLLAPSIBLE LOGIC
+============================================================ */
+const topBar = document.getElementById("topBar");
+const collapseToggle = document.getElementById("collapseToggle");
+
+collapseToggle.addEventListener("click", () => {
+    topBar.classList.toggle("collapsed");
+    collapseToggle.textContent = topBar.classList.contains("collapsed") ? "▼" : "▲";
+});
+
+/* Auto-hide on scroll */
+window.addEventListener("wheel", (e) => {
+    if (e.deltaY > 0) topBar.classList.add("collapsed");
+    else topBar.classList.remove("collapsed");
+});
+
+/* URL navigation */
+document.getElementById("goBtn").addEventListener("click", () => {
+    const url = document.getElementById("urlInput").value;
+    document.getElementById("browserFrame").src = url.startsWith("http") ? url : "https://" + url;
+});
+
+/* ============================================================
+   CHAT SYSTEM
+============================================================ */
+let bannedUsers = [];
+let deletedMessages = [];
+
+/* Load banned users */
+function loadBannedUsers() {
+    const saved = localStorage.getItem("gbv2_banned_users");
+    bannedUsers = saved ? JSON.parse(saved) : [];
+    renderBannedList();
+}
+
+/* Load deleted messages */
+function loadDeletedMessages() {
+    const saved = localStorage.getItem("gbv2_deleted_messages");
+    deletedMessages = saved ? JSON.parse(saved) : [];
+}
+
+/* Fetch messages */
+async function loadChatMessages() {
+    const res = await fetch(API_URL);
+    const messages = await res.json();
+
+    const filtered = messages.filter(m =>
+        !bannedUsers.includes(m.username) &&
+        !deletedMessages.includes(m.id)
+    );
+
+    renderMessages(filtered);
+    renderAdminMessages(messages);
+}
+
+/* Render messages in both chat views */
+function renderMessages(list) {
+    const full = document.getElementById("chatFullMessages");
+    const panel = document.getElementById("chatPanelMessages");
+
+    full.innerHTML = "";
+    panel.innerHTML = "";
+
+    list.forEach(msg => {
+        const div = document.createElement("div");
+        div.textContent = `${msg.username}: ${msg.text}`;
+        full.appendChild(div);
+
+        const div2 = div.cloneNode(true);
+        panel.appendChild(div2);
+    });
+}
+
+/* Send message */
+async function sendMessage(text) {
+    if (!currentUser) return;
+
+    if (bannedUsers.includes(currentUser)) {
+        alert("You are banned from chatting.");
+        return;
+    }
+
+    await fetch(API_URL, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ username: currentUser, text })
+    });
+
+    loadChatMessages();
+}
+
+/* Chat input handlers */
+document.getElementById("chatFullSend").addEventListener("click", () => {
+    const input = document.getElementById("chatFullInput");
+    if (input.value.trim()) sendMessage(input.value.trim());
+    input.value = "";
+});
+
+document.getElementById("chatPanelSend").addEventListener("click", () => {
+    const input = document.getElementById("chatPanelInput");
+    if (input.value.trim()) sendMessage(input.value.trim());
+    input.value = "";
+});
+
+/* Chat access control */
+function updateChatAccess() {
+    const warn1 = document.getElementById("chatLoginWarning");
+    const warn2 = document.getElementById("chatPanelWarning");
+
+    const inputs = [
+        document.getElementById("chatFullInput"),
+        document.getElementById("chatPanelInput")
+    ];
+    const buttons = [
+        document.getElementById("chatFullSend"),
+        document.getElementById("chatPanelSend")
+    ];
+
+    if (!currentUser) {
+        warn1.style.display = "block";
+        warn2.style.display = "block";
+        inputs.forEach(i => i.disabled = true);
+        buttons.forEach(b => b.disabled = true);
+    } else {
+        warn1.style.display = "none";
+        warn2.style.display = "none";
+        inputs.forEach(i => i.disabled = false);
+        buttons.forEach(b => b.disabled = false);
+    }
+}
+
+/* ============================================================
+   SLIDE-OUT CHAT PANEL
+============================================================ */
+const chatPanel = document.getElementById("chatPanel");
+document.getElementById("chatToggleBtn").addEventListener("click", () => {
+    chatPanel.classList.toggle("open");
+});
+
+/* ============================================================
+   ACCOUNT SYSTEM
+============================================================ */
+function getUsers() {
+    return JSON.parse(localStorage.getItem("gbv2_users") || "[]");
+}
+
+function saveUsers(users) {
+    localStorage.setItem("gbv2_users", JSON.stringify(users));
+}
+
+/* Switch account pages */
+function showAccountPage(id) {
+    document.querySelectorAll(".account-page").forEach(p => p.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+
+/* Navigation */
+document.getElementById("goToSignUp").onclick = () => showAccountPage("accountSignUp");
+document.getElementById("goToForgot").onclick = () => showAccountPage("accountForgot");
+document.getElementById("backToSignIn1").onclick = () => showAccountPage("accountSignIn");
+document.getElementById("backToSignIn2").onclick = () => showAccountPage("accountSignIn");
+
+/* Sign Up */
+document.getElementById("signupBtn").addEventListener("click", async () => {
+    const username = document.getElementById("signupUsername").value.trim();
+    const pass = document.getElementById("signupPassword").value;
+    const confirm = document.getElementById("signupConfirm").value;
+
+    if (!username || username.length < 3) return alert("Invalid username.");
+    if (pass !== confirm) return alert("Passwords do not match.");
+
+    const users = getUsers();
+    if (users.some(u => u.username === username)) return alert("Username already exists.");
+
+    const q = document.getElementById("securityQuestion").value;
+    const customQ = document.getElementById("customQuestionInput").value.trim();
+    const answer = document.getElementById("securityAnswer").value.trim();
+
+    const question = q === "custom" ? customQ : q;
+
+    users.push({
+        username,
+        passwordHash: await hash(pass),
+        question,
+        answerHash: await hash(answer)
+    });
+
+    saveUsers(users);
+    alert("Account created!");
+    showAccountPage("accountSignIn");
+});
+
+/* Sign In */
+document.getElementById("loginBtn").addEventListener("click", async () => {
+    const username = document.getElementById("loginUsername").value.trim();
+    const pass = document.getElementById("loginPassword").value;
+
+    const users = getUsers();
+    const user = users.find(u => u.username === username);
+    if (!user) return alert("User not found.");
+
+    if (user.passwordHash !== await hash(pass)) return alert("Incorrect password.");
+
+    currentUser = username;
+    localStorage.setItem("gbv2_current_user", username);
+
+    updateChatAccess();
+    alert("Logged in!");
+});
+
+/* Forgot Password */
+document.getElementById("forgotLookup").addEventListener("click", () => {
+    const username = document.getElementById("forgotUsername").value.trim();
+    const users = getUsers();
+    const user = users.find(u => u.username === username);
+    if (!user) return alert("User not found.");
+
+    document.getElementById("forgotQuestion").textContent = user.question;
+    document.getElementById("forgotStep2").style.display = "block";
+});
+
+document.getElementById("forgotResetBtn").addEventListener("click", async () => {
+    const username = document.getElementById("forgotUsername").value.trim();
+    const answer = document.getElementById("forgotAnswer").value.trim();
+    const pass = document.getElementById("forgotNewPass").value;
+    const confirm = document.getElementById("forgotNewConfirm").value;
+
+    const users = getUsers();
+    const user = users.find(u => u.username === username);
+
+    if (user.answerHash !== await hash(answer)) return alert("Incorrect answer.");
+    if (pass !== confirm) return alert("Passwords do not match.");
+
+    user.passwordHash = await hash(pass);
+    saveUsers(users);
+
+    alert("Password reset!");
+    showAccountPage("accountSignIn");
+});
+
+/* ============================================================
+   ADMIN PANEL
+============================================================ */
+function updateAdminUI() {
+    if (isAdmin) {
+        document.getElementById("adminLocked").classList.remove("active");
+        document.getElementById("adminPanel").classList.add("active");
+    }
+}
+
+/* Unlock admin */
+document.getElementById("adminUnlockBtn").addEventListener("click", () => {
+    const code = document.getElementById("adminCodeInput").value;
+    if (code === "2013WP") {
+        isAdmin = true;
+        localStorage.setItem("gbv2_is_admin", "true");
+        updateAdminUI();
+    } else {
+        document.getElementById("adminError").textContent = "Incorrect code.";
+    }
+});
+
+/* Ban user */
+document.getElementById("banUserBtn").addEventListener("click", () => {
+    const name = document.getElementById("banUsernameInput").value.trim();
+    if (!name) return;
+
+    if (!bannedUsers.includes(name)) {
+        bannedUsers.push(name);
+        localStorage.setItem("gbv2_banned_users", JSON.stringify(bannedUsers));
+        renderBannedList();
+        loadChatMessages();
+    }
+});
+
+/* Render banned list */
+function renderBannedList() {
+    const list = document.getElementById("bannedList");
+    list.innerHTML = "";
+
+    bannedUsers.forEach(name => {
+        const li = document.createElement("li");
+        li.textContent = name;
+
+        const btn = document.createElement("button");
+        btn.textContent = "Unban";
+        btn.onclick = () => {
+            bannedUsers = bannedUsers.filter(u => u !== name);
+            localStorage.setItem("gbv2_banned_users", JSON.stringify(bannedUsers));
+            renderBannedList();
+            loadChatMessages();
+        };
+
+        li.appendChild(btn);
+        list.appendChild(li);
+    });
+}
+
+/* Admin message deletion */
+function renderAdminMessages(messages) {
+    const box = document.getElementById("adminMessagesList");
+    box.innerHTML = "";
+
+    messages.forEach(msg => {
+        const div = document.createElement("div");
+        div.className = "msg";
+        div.textContent = `${msg.username}: ${msg.text}`;
+
+        const btn = document.createElement("button");
+        btn.textContent = "Delete";
+        btn.onclick = () => {
+            deletedMessages.push(msg.id);
+            localStorage.setItem("gbv2_deleted_messages", JSON.stringify(deletedMessages));
+            loadChatMessages();
+        };
+
+        div.appendChild(btn);
+        box.appendChild(div);
+    });
+}
+
+/* Admin password reset */
+document.getElementById("resetPassBtn").addEventListener("click", async () => {
+    const username = document.getElementById("resetUserInput").value.trim();
+    const pass = document.getElementById("resetNewPass").value;
+    const confirm = document.getElementById("resetNewConfirm").value;
+
+    if (pass !== confirm) return alert("Passwords do not match.");
+
+    const users = getUsers();
+    const user = users.find(u => u.username === username);
+    if (!user) return alert("User not found.");
+
+    user.passwordHash = await hash(pass);
+    saveUsers(users);
+
+    if (currentUser === username) {
+        currentUser = null;
+        localStorage.removeItem("gbv2_current_user");
+        updateChatAccess();
+    }
+
+    alert("Password reset!");
+});
+
+/* ============================================================
+   SETTINGS PANEL
+============================================================ */
+document.getElementById("chatStyleSelect").addEventListener("change", (e) => {
+    const btn = document.getElementById("chatToggleBtn");
+    btn.classList.remove("orb", "pill");
+
+    if (e.target.value === "orb") btn.classList.add("orb");
+});
+
+/* Close settings */
+document.getElementById("closeSettings").addEventListener("click", () => {
+    document.getElementById("settingsPanel").style.display = "none";
+});
+</script>
 </body>
 </html>
