@@ -1,133 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>GalaxyBrowserV2 Ultra</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    /* ===== GLOBAL ===== */
-    body {margin:0;padding:0;background:black;color:white;font-family:Arial,sans-serif;overflow:hidden;}
-    body::before{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(circle at center,#111 0%,#000 70%);z-index:-2;}
-    body::after{content:"";position:fixed;top:0;left:0;width:100%;height:100%;background-image:url('https://i.imgur.com/9aKQX9T.png');opacity:.25;z-index:-1;pointer-events:none;}
+<meta charset="UTF-8">
+<title>Galactic Neon Browser</title>
+<style>
+/* ===================== GLOBAL ===================== */
+body { margin:0; font-family: 'Orbitron', monospace; background:black; color:cyan; overflow-x:hidden; cursor:none; }
+* { box-sizing:border-box; }
+#starfield { position:fixed; inset:0; background:black; z-index:-2; }
+canvas#stars { position:fixed; inset:0; z-index:-3; }
+/* Neon glow and glitch fonts */
+.glow { text-shadow: 0 0 5px #0ff, 0 0 10px #f0f, 0 0 20px #0ff,0 0 30px #f0f; color: #0ff; }
+.glitch { position:relative; color:#0ff; animation: glitchAnim 2s infinite; }
+@keyframes glitchAnim { 0% { left:0px; top:0px } 20% { left:2px; top:-1px } 40% { left:-2px; top:1px } 60% { left:1px; top:2px } 80% { left:-1px; top:-2px } 100% { left:0; top:0; } }
 
-    /* ===== TOP BAR ===== */
-    .top-bar{width:100%;background:rgba(20,20,20,.9);border-bottom:2px solid #0ff;padding:10px;transition:.3s;}
-    .top-bar.collapsed{transform:translateY(-100%);}
-    .url-container{display:flex;gap:8px;margin-bottom:10px;}
-    .url-container input{flex:1;padding:8px;border:1px solid #0ff;background:black;color:#0ff;}
-    .go-btn,.collapse-btn{padding:8px 12px;background:#0ff;color:black;border:none;cursor:pointer;font-weight:bold;}
-    .tab-bar{display:flex;gap:10px;}
-    .tab-btn{padding:8px 14px;background:#111;border:1px solid #0ff;color:#0ff;cursor:pointer;}
-    .tab-btn.active{background:#0ff;color:black;}
-    .tab-btn[data-tab="adminTab"]{border:2px solid #f0f;box-shadow:0 0 10px #f0f;}
-    .tab-btn[data-tab="settingsTab"]{border:2px solid #0f0;box-shadow:0 0 10px #0f0;}
+/* ===================== TOP BAR ===================== */
+#topBar { display:flex; padding:8px; background:#000; border-bottom:2px solid cyan; align-items:center; z-index:1000; position:relative; }
+#urlInput { flex:1; padding:6px; background:black; color:cyan; border:1px solid cyan; outline:none; }
+button { background:black; color:magenta; border:1px solid cyan; margin-left:5px; cursor:pointer; padding:6px; font-family:Orbitron; font-weight:bold; }
+button:hover { background:cyan; color:black; border-color:magenta; }
 
-    /* ===== MAIN CONTENT ===== */
-    .main-content{position:absolute;top:90px;bottom:0;width:100%;overflow:hidden;}
-    .tab-page{display:none;width:100%;height:100%;overflow-y:auto;padding:20px;box-sizing:border-box;}
-    .tab-page.active{display:block;}
-    #browserFrame{width:100%;height:100%;border:none;}
+/* ===================== TABS ===================== */
+#tabs { display:flex; border-bottom:2px solid cyan; background:rgba(0,0,0,0.6); position:sticky; top:0; z-index:999; }
+.tab { flex:1; padding:10px; cursor:pointer; text-align:center; transition: all 0.3s; }
+.tab.active { background:cyan; color:black; box-shadow: 0 0 20px #0ff, 0 0 40px #f0f; }
 
-    /* ===== CHAT ===== */
-    .chat-full-container{display:flex;flex-direction:column;height:100%;}
-    .chat-messages{flex:1;overflow-y:auto;background:rgba(0,255,255,.05);border:1px solid #0ff;padding:10px;}
-    .chat-input-area{display:flex;gap:10px;margin-top:10px;}
-    .chat-input-area input{flex:1;padding:8px;background:black;border:1px solid #0ff;color:#0ff;}
-    .chat-input-area button{padding:8px 14px;background:#0ff;color:black;border:none;cursor:pointer;}
-    .chat-warning{margin-top:10px;color:#f33;font-weight:bold;display:none;}
+/* ===================== TAB CONTENT ===================== */
+.tabContent { display:none; padding:10px; animation: fadeIn 0.5s; }
+.tabContent.active { display:block; }
+@keyframes fadeIn { 0%{opacity:0} 100%{opacity:1} }
 
-    /* ===== SLIDE CHAT ===== */
-    .chat-panel{position:fixed;right:-350px;top:0;width:350px;height:100%;background:rgba(10,10,10,.95);border-left:2px solid #0ff;transition:.3s;padding:10px;box-sizing:border-box;}
-    .chat-panel.open{right:0;}
-    .chat-toggle-btn{position:fixed;bottom:20px;right:20px;padding:14px 20px;background:#0ff;color:black;border:none;cursor:pointer;font-weight:bold;border-radius:30px;transition:.3s;}
-    .chat-toggle-btn.orb{width:70px;height:70px;border-radius:50%;padding:0;font-size:14px;}
+/* ===================== WEB ===================== */
+iframe { width:100%; height:80vh; border:none; border-radius:4px; box-shadow:0 0 20px #0ff,0 0 40px #f0f; }
 
-    /* ===== ACCOUNT ===== */
-    .account-page{display:none;}
-    .account-page.active{display:block;}
-    .account-page input,.account-page select{width:100%;padding:10px;margin:8px 0;background:black;border:1px solid #0ff;color:#0ff;}
-    .account-page button{width:100%;padding:10px;background:#0ff;color:black;border:none;cursor:pointer;margin-top:10px;}
-    .link{color:#0ff;cursor:pointer;text-decoration:underline;margin-top:10px;}
+/* ===================== CHAT ===================== */
+#chatMessages, #adminChat { height:300px; overflow-y:auto; border:1px solid cyan; margin-bottom:5px; padding:8px; background:rgba(0,0,0,0.7); border-radius:4px; }
+#chatWarning { color:magenta; font-weight:bold; }
 
-    /* ===== ADMIN ===== */
-    .admin-page{display:none;}
-    .admin-page.active{display:block;}
-    .admin-messages{max-height:250px;overflow-y:auto;border:1px solid #0ff;padding:10px;background:rgba(0,255,255,.05);}
-    .admin-messages .msg{border-bottom:1px solid #0ff;padding:6px 0;}
-    .admin-messages button{margin-left:10px;padding:4px 8px;background:#f33;color:white;border:none;cursor:pointer;}
-    .error{color:#f33;font-weight:bold;}
+/* ===================== INPUTS ===================== */
+input, select { padding:6px; margin:4px 0; background:black; color:cyan; border:1px solid cyan; border-radius:4px; outline:none; }
 
-    /* ===== SETTINGS ===== */
-    .settings-panel{position:fixed;top:50%;left:50%;width:300px;padding:20px;background:rgba(10,10,10,.95);border:2px solid #0ff;transform:translate(-50%,-50%);display:none;}
-    .settings-panel select,.settings-panel button{width:100%;padding:10px;margin-top:10px;}
+/* ===================== NEON EFFECT ===================== */
+h1,h2,h3,p { text-shadow:0 0 4px cyan,0 0 8px magenta,0 0 12px cyan; }
+h1.glow, h2.glow, h3.glow { animation: glowPulse 2s infinite; }
+@keyframes glowPulse { 0%{text-shadow:0 0 4px #0ff,0 0 8px #f0f} 50%{text-shadow:0 0 8px #0ff,0 0 16px #f0f} 100%{text-shadow:0 0 4px #0ff,0 0 8px #f0f} }
 
-    /* ===== SCROLLBAR ===== */
-    ::-webkit-scrollbar{width:8px;}
-    ::-webkit-scrollbar-thumb{background:#0ff;}
-    ::-webkit-scrollbar-track{background:#111;}
-  </style>
+/* ===================== BUTTON HOVER ===================== */
+button:hover { animation: glowPulse 1.5s infinite; }
+
+/* ===================== CHAT ORB ===================== */
+#chatOrb { position:fixed; bottom:30px; right:30px; width:60px; height:60px; border-radius:50%; background:linear-gradient(45deg,#0ff,#f0f); box-shadow:0 0 20px #0ff,0 0 40px #f0f; cursor:pointer; display:flex; align-items:center; justify-content:center; font-weight:bold; color:black; z-index:1000; }
+
+/* ===================== ADMIN PANEL ===================== */
+#adminPanel { border:1px solid cyan; padding:10px; margin-top:10px; background:rgba(0,0,0,0.8); border-radius:4px; }
+
+/* ===================== SETTINGS ===================== */
+#settings input { width:70%; }
+</style>
 </head>
 <body>
 
-  <!-- TOP BAR -->
-  <div id="topBar" class="top-bar">
-    <div class="url-container">
-      <button id="collapseToggle" class="collapse-btn">▲</button>
-      <input id="urlInput" type="text" placeholder="Enter URL...">
-      <button id="goBtn" class="go-btn">Go</button>
-      <button id="openSettingsBtn">Settings</button>
-    </div>
-    <div class="tab-bar">
-      <button class="tab-btn active" data-tab="webTab">Web</button>
-      <button class="tab-btn" data-tab="aboutTab">About / Owner</button>
-      <button class="tab-btn" data-tab="chatTab">Chat</button>
-      <button class="tab-btn" data-tab="accountTab">Account</button>
-      <button class="tab-btn" data-tab="adminTab">🔒 Admin</button>
-      <button class="tab-btn" data-tab="settingsTab">⚙ Settings</button>
-    </div>
-  </div>
+<!-- STARFIELD CANVAS -->
+<canvas id="stars"></canvas>
 
-  <!-- MAIN CONTENT -->
-  <div id="mainContent" class="main-content">
-    <!-- Web -->
-    <div id="webTab" class="tab-page active"><iframe id="browserFrame" src="https://galaxiastore.netlify.app"></iframe></div>
-    <!-- About -->
-    <div id="aboutTab" class="tab-page"><h1>About the Owner</h1><p>GalaxyBrowserV2 Ultra Edition.</p></div>
-    <!-- Chat -->
-    <div id="chatTab" class="tab-page">
-      <div class="chat-full-container">
-        <div id="chatFullMessages" class="chat-messages"></div>
-        <div class="chat-input-area">
-          <input id="chatFullInput" type="text">
-          <button id="chatFullSend">Send</button>
-        </div>
-        <div id="chatLoginWarning" class="chat-warning">You must sign in to chat.</div>
-      </div>
-    </div>
-    <!-- Account -->
-    <div id="accountTab" class="tab-page">
-      <!-- Sign In -->
-      <div id="accountSignIn" class="account-page active">
-        <h2>Sign In</h2>
-        <input id="loginUsername">
-        <input id="loginPassword" type="password">
-        <button id="loginBtn">Sign In</button>
-        <p class="link" id="goToSignUp">Create an account</p>
-        <p class="link" id="goToForgot">Forgot password?</p>
-      </div>
-      <!-- Sign Up -->
-      <div id="accountSignUp" class="account-page">
-        <h2>Create Account</h2>
-        <input id="signupUsername">
-        <input id="signupPassword" type="password">
-        <input id="signupConfirm" type="password">
-        <label>Security Question</label>
-        <select id="securityQuestion">
-          <option value="favGame">Favourite game?</option>
-          <option value="favColor">Favourite colour?</option>
-          <option value="firstPet">First pet's name?</option>
-          <option value="custom">Custom question...</option>
-        </select>
-        <input id="customQuestionInput" type="text" placeholder="Custom question" style="display:none;">
-        <input id="securityAnswer" type="text" placeholder="Answer">
-        <button id="signupBtn">
+<!-- TOP BAR -->
+<div id="topBar">
+  <input id="urlInput" placeholder="Enter URL">
+  <button onclick="goToURL()">Go</button>
+  <button onclick="toggleTopBar()">⬆</button>
+</div>
+
+<!-- TABS -->
+<div id="tabs">
+  <div class="tab active" onclick="openTab('web')">Web</div>
+  <div class="tab" onclick="openTab('about')">About</div>
+  <div class="tab" onclick="openTab('chat')">Chat</div>
+  <div class="tab" onclick="openTab('account')">Account</div>
+  <div class="tab" onclick="openTab('admin')">Admin 🔒</div>
+  <div class="tab" onclick="openTab('settings')">⚙ Settings</div>
+</div>
+
+<!-- WEB TAB -->
+<div class="tabContent active" id="web">
+  <iframe id="browserFrame"></iframe>
+</div>
+
+<!-- ABOUT TAB -->
+<div class="tabContent" id="about">
+  <h1 class="glow">Galactic Neon Browser</h1>
+  <p>Created by Owner • Sci-Fi Neon Interface • Fully Functional</p>
+</div>
+
+<!-- CHAT TAB -->
+<div class="tabContent" id="chat">
+  <div id="chatMessages"></div>
+  <input id="chatInput" placeholder="Message">
+  <button onclick="sendMessage()">Send</button>
+  <p id="chatWarning"></p>
+</div>
+
+<!-- ACCOUNT TAB -->
+<div class="tabContent" id="account">
+  <h2>Sign In</h2>
+  <input id="loginUser" placeholder="Username">
+  <input id="loginPass" type="password" placeholder="Password">
+  <button onclick="login()">Login</button>
+
+  <h2>Sign Up</h2>
+  <input id="regUser" placeholder="Username">
+  <input id="regPass" type="password" placeholder="Password">
+  <select id="secQ">
+    <option>Favorite game?</option>
+    <option>Favorite color?</option>
+    <option>Pet name?</option>
+  </select>
+  <input id="secA" placeholder="Answer">
+  <button onclick="register()">Register</button>
+
+  <h2>Forgot Password</h2>
+  <input id="forgotUser" placeholder="Username">
+  <input id="forgotAnswer" placeholder="Security Answer">
+  <input id="newPass" type="password" placeholder="New Password">
+  <button onclick="resetPassword()">Reset</button>
+</div>
+
+<!-- ADMIN TAB -->
+<div class="tabContent" id="admin">
+  <input id="adminCode" placeholder="Enter Admin Code">
+  <button onclick="unlockAdmin()">Unlock</button>
+  <div id="adminPanel" hidden>
+    <h3>Chat Logs</h3>
+    <div id="adminChat"></div>
+  </div>
+</div>
+
+<!-- SETTINGS TAB -->
+<div class="tabContent" id="settings">
+  <input id="homeURL" placeholder="Homepage URL">
+  <button onclick="saveSettings()">Save</button>
+  <button onclick="resetAll()">Reset All</button>
+</div>
+
+<!-- CHAT ORB -->
+<div id="chatOrb" onclick="toggleChat()">💬</div>
+
+<script>
+/* ===== STARFIELD ===== */
+const canvas=document.getElementById("stars"), ctx=canvas.getContext("2d");
+let w=canvas.width=window.innerWidth, h=canvas.height=window.innerHeight;
+window.onresize=()=>{w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight;}
+let stars=[];
+for(let i=0;i<200;i++){stars.push({x:Math.random()*w,y:Math.random()*h,z:Math.random()*2})}
+function drawStars(){ctx.fillStyle="black";ctx.fillRect(0,0,w,h);ctx.fillStyle="#0ff";stars.forEach(s=>{ctx.beginPath();ctx.arc(s.x,s.y,s.z,0,Math.PI*2);ctx.fill();s.y-=0.5;if(s.y<0)s.y=h;});requestAnimationFrame(drawStars);}
+drawStars();
+
+/* ===== TABS ===== */
+function openTab(id){
+  document.querySelectorAll(".tabContent").forEach(t=>t.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  [...document.querySelectorAll(".tab")].find(b=>b.textContent.toLowerCase().includes(id)).classList.add("active");
+}
+
+/* ===== URL NAV ===== */
+let homepage=localStorage.getItem("homepage")||"https://duckduckgo.com";
+document.getElementById("browserFrame").src=homepage;
+function goToURL(){let u=document.getElementById("urlInput").value;if(!u.startsWith("http"))u="https://"+u;document.getElementById("browserFrame").src=u;}
+function toggleTopBar(){let bar=document.getElementById("topBar");bar.style.display=(bar.style.display==="none")?"flex":"none";}
+
+/* ===== ACCOUNT ===== */
+let currentUser=localStorage.getItem("user");
+function hash(p){return btoa(p);}
+function register(){let users=JSON.parse(localStorage.getItem("users")||"{}");users[document.getElementById("regUser").value]={pass:hash(document.getElementById("regPass").value),q:document.getElementById("secQ").value,a:document.getElementById("secA").value};localStorage.setItem("users",JSON.stringify(users));alert("Registered");}
+function login(){let users=JSON.parse(localStorage.getItem("users")||"{}");if(users[document.getElementById("loginUser").value]?.pass===hash(document.getElementById("loginPass").value)){currentUser=document.getElementById("loginUser").value;localStorage.setItem("user",currentUser);alert("Logged in");}else alert("Invalid credentials");}
+function resetPassword(){let users=JSON.parse(localStorage.getItem("users")||"{}");let u=document.getElementById("forgotUser").value;if(users[u]?.a===document.getElementById("forgotAnswer").value){users[u].pass=hash(document.getElementById("newPass").value);localStorage.setItem("users",JSON.stringify(users));alert("Password reset");}else alert("Incorrect answer");}
+
+/* ===== CHAT SERVER ===== */
+async function loadChat(){let msgs=await fetch("https://696fdb3ca06046ce61880d4c.mockapi.io/Galaxia-messages").then(r=>r.json());document.getElementById("chatMessages").innerHTML=msgs.map(m=>`<div>${m.username}: ${m.message}</div>`).join("");}
+async function sendMessage(){if(!currentUser){document.getElementById("chatWarning").textContent="Sign in to chat";return;}let msg=document.getElementById("chatInput").value;await fetch("https://696fdb3ca06046ce61880d4c.mockapi.io/Galaxia-messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:currentUser,message:msg})});document.getElementById("chatInput").value="";loadChat();}
+loadChat();
+
+/* ===== ADMIN ===== */
+function unlockAdmin(){if(document.getElementById("adminCode").value==="2013WP"){document.getElementById("adminPanel").hidden=false;fetch("https://696fdb3ca06046ce61880d4c.mockapi.io/Galaxia-messages").then(r=>r.json()).then(data=>{document.getElementById("adminChat").innerHTML=data.map(m=>`<div>${m.username}: ${m.message} <button onclick='deleteMsg("${m.id}")'>DEL</button></div>`).join("");});}else alert("Wrong code");}
+async function deleteMsg(id){await fetch(`https://696fdb3ca06046ce61880d4c.mockapi.io/Galaxia-messages/${id}`,{method:"DELETE"});unlockAdmin();}
+
+/* ===== SETTINGS ===== */
+function saveSettings(){localStorage.setItem("homepage",document.getElementById("homeURL").value);alert("Saved");}
+function resetAll(){localStorage.clear();location.reload();}
+
+/* ===== CHAT ORB ===== */
+let orbOpen=false;
+function toggleChat(){orbOpen=!orbOpen;openTab('chat');}
+
+/* ===== INITIAL LOAD ===== */
+document.getElementById("urlInput").value=homepage;
+</script>
+</body>
+</html>
