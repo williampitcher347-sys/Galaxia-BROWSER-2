@@ -8,189 +8,195 @@
 
 <style>
 *{box-sizing:border-box;font-family:'Orbitron',monospace}
-body{margin:0;background:radial-gradient(circle at top,#0b0f1a,#000);color:#dff;overflow:hidden}
+body{margin:0;background:#000;color:#dff;overflow:hidden}
 .hidden{display:none}
+
+/* ===== AUTH ===== */
+.auth{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+}
+.box{
+  width:360px;padding:30px;border:1px solid #00fff0;
+  box-shadow:0 0 25px #00fff0;
+}
+.box input,.box select{
+  width:100%;margin-bottom:10px;padding:8px;
+  background:#020617;border:1px solid #00fff0;color:#0ff;
+}
+.box button{
+  width:100%;padding:10px;background:transparent;
+  border:1px solid #00fff0;color:#0ff;cursor:pointer;
+}
+.link{text-align:center;font-size:12px;opacity:.6;cursor:pointer}
+
+/* ===== APP ===== */
 #topBar{height:45px;display:flex;align-items:center;border-bottom:1px solid #00fff0;padding:0 10px}
 .tab{margin-right:15px;cursor:pointer;opacity:.6}
 .tab.active{opacity:1;color:#00fff0}
 #content{height:calc(100vh - 45px)}
 iframe{width:100%;height:100%;border:none}
-#urlBar{display:flex;border-bottom:1px solid #00fff0}
-#urlInput{flex:1;background:#020617;border:none;padding:8px;color:#0ff}
-#goBtn{background:transparent;border:none;color:#00fff0;padding:8px 15px}
-.panel{padding:20px;max-width:520px}
-#chatBox,#chatBoxSide{height:65%;overflow-y:auto;padding:10px;border-bottom:1px solid #00fff0}
-.chat-msg{margin-bottom:6px;font-size:13px}
-.time{opacity:.5;font-size:10px}
-#chatInput{width:78%;padding:8px;background:#020617;border:1px solid #00fff0;color:#0ff}
-#sendBtn{width:20%;background:transparent;border:1px solid #00fff0;color:#0ff}
-#chatOrb{position:fixed;bottom:20px;right:20px;width:55px;height:55px;border-radius:50%;border:1px solid #00fff0;box-shadow:0 0 20px #00fff0;cursor:pointer}
-#sideChat{position:fixed;right:0;top:45px;width:300px;height:calc(100vh - 45px);background:#020617;border-left:1px solid #00fff0}
-#loginScreen{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center}
-.login-box{width:360px;padding:30px;border:1px solid #00fff0;box-shadow:0 0 30px #00fff0}
-.login-box input,.login-box select{width:100%;margin-bottom:10px;padding:8px;background:#020617;border:1px solid #00fff0;color:#0ff}
-.login-box button{width:100%;padding:10px;background:transparent;border:1px solid #00fff0;color:#0ff}
-.link{text-align:center;font-size:12px;opacity:.6;cursor:pointer}
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-thumb{background:#00fff0}
+
+/* ===== CHAT ===== */
+#chatBox,#orbChatBox{height:70%;overflow-y:auto;padding:10px;border-bottom:1px solid #00fff0}
+.chat-msg{font-size:13px;margin-bottom:4px}
+input,button{outline:none}
+
+/* ===== ORB ===== */
+#orb{
+  position:fixed;bottom:20px;right:20px;
+  width:55px;height:55px;border-radius:50%;
+  border:1px solid #00fff0;box-shadow:0 0 20px #00fff0;
+  cursor:pointer;
+}
+#orbPanel{
+  position:fixed;bottom:85px;right:20px;width:300px;height:360px;
+  background:#020617;border:1px solid #00fff0;
+}
 </style>
 </head>
 
 <body>
 
-<div id="loginScreen">
-  <div class="login-box">
-    <h3 id="authTitle">GALAXIA ACCESS</h3>
-    <input id="authUser" placeholder="Username">
-    <input id="authPass" type="password" placeholder="Password">
-    <select id="authQ" class="hidden">
+<!-- ================= SIGN IN ================= -->
+<div id="signin" class="auth">
+  <div class="box">
+    <h3>SIGN IN</h3>
+    <input id="siUser" placeholder="Username">
+    <input id="siPass" type="password" placeholder="Password">
+    <button onclick="signIn()">SIGN IN</button>
+    <div class="link" onclick="show('signup')">Create account</div>
+    <div class="link" onclick="show('reset')">Forgot password</div>
+  </div>
+</div>
+
+<!-- ================= SIGN UP ================= -->
+<div id="signup" class="auth hidden">
+  <div class="box">
+    <h3>SIGN UP</h3>
+    <input id="suUser" placeholder="Username">
+    <input id="suPass" type="password" placeholder="Password">
+    <select id="suQ">
       <option>Favorite color?</option>
       <option>First pet?</option>
       <option>Favorite game?</option>
     </select>
-    <input id="authA" class="hidden" placeholder="Answer">
-    <button onclick="authAction()">CONTINUE</button>
-    <div class="link" onclick="mode='signup';updateAuth()">Sign Up</div>
-    <div class="link" onclick="mode='reset';updateAuth()">Forgot Password</div>
+    <input id="suA" placeholder="Answer">
+    <button onclick="signUp()">CREATE ACCOUNT</button>
+    <div class="link" onclick="show('signin')">Back to sign in</div>
   </div>
 </div>
 
+<!-- ================= RESET ================= -->
+<div id="reset" class="auth hidden">
+  <div class="box">
+    <h3>RESET PASSWORD</h3>
+    <input id="rpUser" placeholder="Username">
+    <input id="rpA" placeholder="Security answer">
+    <input id="rpPass" type="password" placeholder="New password">
+    <button onclick="resetPass()">RESET</button>
+    <div class="link" onclick="show('signin')">Back</div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
 <div id="app" class="hidden">
   <div id="topBar">
     <div class="tab active" onclick="openTab('web')">WEB</div>
     <div class="tab" onclick="openTab('chat')">CHAT</div>
     <div class="tab" onclick="openTab('account')">ACCOUNT</div>
-    <div class="tab" onclick="openTab('admin')">ADMIN</div>
-    <div class="tab" onclick="toggleBar()">⛶</div>
   </div>
 
   <div id="content">
     <div id="web">
-      <div id="urlBar">
-        <input id="urlInput" placeholder="https://duckduckgo.com">
-        <button id="goBtn" onclick="go()">GO</button>
-      </div>
-      <iframe id="browser" src="https://duckduckgo.com"></iframe>
+      <iframe src="https://duckduckgo.com"></iframe>
     </div>
-
     <div id="chat" class="hidden">
       <div id="chatBox"></div>
       <input id="chatInput">
-      <button id="sendBtn" onclick="sendMessage()">SEND</button>
+      <button onclick="sendMsg()">SEND</button>
     </div>
-
-    <div id="account" class="hidden panel">
-      <h3 id="accountName"></h3>
+    <div id="account" class="hidden">
+      <h3 id="accName"></h3>
       <button onclick="logout()">LOG OUT</button>
-    </div>
-
-    <div id="admin" class="hidden panel">
-      <input id="adminCode" placeholder="Admin Code">
-      <button onclick="unlockAdmin()">UNLOCK</button>
-      <div id="adminPanel" class="hidden">
-        <h4>USERS</h4>
-        <div id="adminUsers"></div>
-        <h4>MESSAGES</h4>
-        <div id="adminMessages"></div>
-      </div>
     </div>
   </div>
 </div>
 
-<div id="chatOrb" onclick="toggleSideChat()"></div>
-<div id="sideChat" class="hidden">
-  <div id="chatBoxSide"></div>
+<!-- ================= ORB QUICK CHAT ================= -->
+<div id="orb" onclick="toggleOrb()"></div>
+<div id="orbPanel" class="hidden">
+  <div id="orbChatBox"></div>
+  <input id="orbInput">
+  <button onclick="sendMsg(true)">SEND</button>
 </div>
 
 <script>
 const API="https://696fdb3ca06046ce61880d4c.mockapi.io/messages";
-const REFRESH=4000;
-let mode="login",lastSent=0;
 let users=JSON.parse(localStorage.users||"{}");
 
-function updateAuth(){
-  authTitle.textContent=mode.toUpperCase();
-  authQ.classList.toggle("hidden",mode!=="signup"&&mode!=="reset");
-  authA.classList.toggle("hidden",mode!=="signup"&&mode!=="reset");
+/* ===== NAV ===== */
+function show(id){
+  ['signin','signup','reset'].forEach(x=>document.getElementById(x).classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
 }
 
-function authAction(){
-  const u=authUser.value,p=authPass.value;
-  if(mode==="signup"){
-    users[u]={pass:btoa(p),q:authQ.value,a:authA.value,banned:false};
-  }else if(mode==="reset"){
-    if(users[u]?.a===authA.value) users[u].pass=btoa(p);
-  }else{
-    if(users[u]?.banned) return alert("USER BANNED");
-    if(users[u]?.pass!==btoa(p)) return;
-  }
+/* ===== AUTH ===== */
+function signUp(){
+  users[suUser.value]={pass:btoa(suPass.value),q:suQ.value,a:suA.value};
   localStorage.users=JSON.stringify(users);
-  localStorage.currentUser=u;
-  loginScreen.classList.add("hidden");
-  app.classList.remove("hidden");
-  accountName.textContent="USER: "+u;
-  loadChat();
-  setInterval(loadChat,REFRESH);
+  show('signin');
 }
+function signIn(){
+  const u=siUser.value,p=siPass.value;
+  if(users[u]?.pass===btoa(p)){
+    localStorage.currentUser=u;
+    accName.textContent="USER: "+u;
+    document.querySelectorAll('.auth').forEach(a=>a.classList.add('hidden'));
+    app.classList.remove('hidden');
+    loadChat();
+    setInterval(loadChat,4000);
+  }
+}
+function resetPass(){
+  if(users[rpUser.value]?.a===rpA.value){
+    users[rpUser.value].pass=btoa(rpPass.value);
+    localStorage.users=JSON.stringify(users);
+    show('signin');
+  }
+}
+function logout(){location.reload()}
 
+/* ===== TABS ===== */
 function openTab(id){
-  document.querySelectorAll("#content>div").forEach(d=>d.classList.add("hidden"));
-  document.getElementById(id).classList.remove("hidden");
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  event.target.classList.add("active");
+  document.querySelectorAll('#content>div').forEach(d=>d.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
 }
 
-function toggleBar(){topBar.classList.toggle("hidden")}
-
-function go(){
-  let u=urlInput.value;
-  if(!u.startsWith("http")) u="https://"+u;
-  browser.src=u;
-}
-
+/* ===== CHAT ===== */
 async function loadChat(){
   const r=await fetch(API);
   const d=await r.json();
-  chatBox.innerHTML=chatBoxSide.innerHTML=adminMessages.innerHTML="";
+  chatBox.innerHTML=orbChatBox.innerHTML="";
   d.forEach(m=>{
-    const t=new Date(m.timestamp).toLocaleTimeString();
-    const msg=`${m.user}: ${m.text}`;
-    const div=document.createElement("div");
-    div.className="chat-msg";
-    div.innerHTML=msg+` <span class="time">${t}</span>`;
-    chatBox.appendChild(div.cloneNode(true));
-    chatBoxSide.appendChild(div.cloneNode(true));
-    adminMessages.innerHTML+=`${msg} <button onclick="del('${m.id}')">X</button><br>`;
-  });
-  adminUsers.innerHTML="";
-  Object.keys(users).forEach(u=>{
-    adminUsers.innerHTML+=`${u} 
-    <button onclick="ban('${u}')">${users[u].banned?"UNBAN":"BAN"}</button><br>`;
+    const line=document.createElement('div');
+    line.className='chat-msg';
+    line.textContent=m.user+": "+m.text;
+    chatBox.appendChild(line.cloneNode(true));
+    orbChatBox.appendChild(line.cloneNode(true));
   });
 }
-
-async function sendMessage(){
-  if(Date.now()-lastSent<2000) return;
-  lastSent=Date.now();
-  await fetch(API,{method:"POST",headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({user:localStorage.currentUser,text:chatInput.value,timestamp:Date.now()})});
-  chatInput.value="";
-}
-
-async function del(id){
-  await fetch(`${API}/${id}`,{method:"DELETE"});
+async function sendMsg(fromOrb=false){
+  const input=fromOrb?orbInput:chatInput;
+  if(!input.value) return;
+  await fetch(API,{method:"POST",headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({user:localStorage.currentUser,text:input.value,timestamp:Date.now()})
+  });
+  input.value="";
   loadChat();
 }
 
-function ban(u){
-  users[u].banned=!users[u].banned;
-  localStorage.users=JSON.stringify(users);
-  loadChat();
-}
-
-function toggleSideChat(){sideChat.classList.toggle("hidden")}
-function unlockAdmin(){if(adminCode.value==="2013WP")adminPanel.classList.remove("hidden")}
-function logout(){location.reload()}
+/* ===== ORB ===== */
+function toggleOrb(){orbPanel.classList.toggle('hidden')}
 </script>
 
 </body>
