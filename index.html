@@ -7,8 +7,8 @@
   <style>
     :root {
       --bg-main: #020515;
-      --bg-panel: #070b1f;
-      --bg-elevated: #0d1228;
+      --bg-panel: #050818;
+      --bg-elevated: #070b1f;
       --accent: #5c8dff;
       --accent-strong: #9b5cff;
       --accent-soft: rgba(92, 141, 255, 0.25);
@@ -17,14 +17,12 @@
       --text-muted: #9aa4c6;
       --danger: #ff4f6a;
       --border-subtle: #181f35;
-      --radius-lg: 16px;
-      --radius-md: 11px;
-      --radius-sm: 7px;
-      --shadow-soft: 0 22px 55px rgba(0, 0, 0, 0.7);
-      --shadow-glow: 0 0 30px rgba(92, 141, 255, 0.6);
+      --shadow-soft: 0 22px 55px rgba(0, 0, 0, 0.8);
+      --shadow-glow: 0 0 30px rgba(92, 141, 255, 0.7);
       --transition-fast: 0.18s ease-out;
       --transition-med: 0.28s ease;
       --transition-slow: 0.45s ease;
+      --chat-width: 420px;
     }
 
     * {
@@ -33,29 +31,33 @@
       padding: 0;
     }
 
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
         "Segoe UI", sans-serif;
       background: radial-gradient(circle at top left, #1a2450 0, #020515 45%, #000 100%);
       color: var(--text-main);
-      min-height: 100vh;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
-      overflow: hidden;
+      align-items: stretch;
+      justify-content: stretch;
     }
 
-    .galaxy-orbit {
+    .nebula-bg {
       position: fixed;
-      inset: -40%;
+      inset: -20%;
       background:
-        radial-gradient(circle at 10% 0%, rgba(155, 92, 255, 0.18), transparent 55%),
-        radial-gradient(circle at 90% 100%, rgba(92, 141, 255, 0.16), transparent 55%);
+        radial-gradient(circle at 10% 0%, rgba(155, 92, 255, 0.25), transparent 55%),
+        radial-gradient(circle at 90% 100%, rgba(92, 141, 255, 0.2), transparent 55%),
+        radial-gradient(circle at 50% 50%, rgba(0, 255, 204, 0.08), transparent 60%);
       opacity: 0.9;
       pointer-events: none;
       filter: blur(2px);
-      z-index: -2;
+      z-index: -3;
     }
 
     .starfield {
@@ -66,40 +68,49 @@
         radial-gradient(1px 1px at 80% 30%, rgba(255, 255, 255, 0.35), transparent),
         radial-gradient(1px 1px at 50% 80%, rgba(255, 255, 255, 0.3), transparent),
         radial-gradient(1px 1px at 20% 70%, rgba(255, 255, 255, 0.25), transparent);
+      opacity: 0.7;
+      mix-blend-mode: screen;
+      pointer-events: none;
+      z-index: -2;
+      transition: opacity var(--transition-med);
+    }
+
+    .starfield.off {
+      opacity: 0;
+    }
+
+    .parallax-layer {
+      position: fixed;
+      inset: -10%;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(92, 141, 255, 0.18), transparent 60%),
+        radial-gradient(circle at 80% 90%, rgba(155, 92, 255, 0.16), transparent 60%);
       opacity: 0.6;
       mix-blend-mode: screen;
       pointer-events: none;
       z-index: -1;
-      animation: starDrift 40s linear infinite;
+      transition: opacity var(--transition-med);
     }
 
-    @keyframes starDrift {
-      0% { transform: translate3d(0, 0, 0); }
-      50% { transform: translate3d(-20px, -10px, 0); }
-      100% { transform: translate3d(0, 0, 0); }
+    .parallax-layer.off {
+      opacity: 0;
     }
 
     .shell {
       width: 100%;
-      max-width: 1320px;
-      height: 90vh;
-      max-height: 760px;
-      background: linear-gradient(135deg, rgba(9, 13, 35, 0.96), rgba(5, 8, 25, 0.98));
-      border-radius: 26px;
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      box-shadow: var(--shadow-soft), 0 0 0 1px rgba(255, 255, 255, 0.02);
-      display: grid;
-      grid-template-columns: minmax(0, 3fr) minmax(320px, 1.1fr);
-      overflow: hidden;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(9, 13, 35, 0.98), rgba(5, 8, 25, 0.99));
+      display: flex;
+      flex-direction: column;
       position: relative;
-      backdrop-filter: blur(18px) saturate(130%);
+      overflow: hidden;
+      box-shadow: var(--shadow-soft);
     }
 
     .shell::before {
       content: "";
       position: absolute;
-      inset: -1px;
-      border-radius: inherit;
+      inset: 0;
       background: conic-gradient(
         from 210deg,
         rgba(92, 141, 255, 0.2),
@@ -109,33 +120,26 @@
         transparent 80%,
         rgba(92, 141, 255, 0.2)
       );
-      opacity: 0;
+      opacity: 0.25;
+      mix-blend-mode: soft-light;
       pointer-events: none;
-      mix-blend-mode: screen;
-      transition: opacity var(--transition-slow);
     }
 
-    .shell:hover::before {
-      opacity: 1;
-    }
-
-    .browser {
-      display: flex;
-      flex-direction: column;
-      border-right: 1px solid var(--border-subtle);
+    .top-bar {
       position: relative;
-      overflow: hidden;
-    }
-
-    .browser-header {
-      padding: 12px 18px 10px;
+      z-index: 3;
+      height: 46px;
       display: flex;
       align-items: center;
-      gap: 12px;
-      border-bottom: 1px solid var(--border-subtle);
-      background: radial-gradient(circle at top left, rgba(155, 92, 255, 0.18), transparent 55%);
-      position: relative;
-      z-index: 2;
+      justify-content: space-between;
+      padding: 0 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      background: linear-gradient(
+        to bottom,
+        rgba(10, 14, 40, 0.96),
+        rgba(5, 8, 25, 0.98)
+      );
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
     }
 
     .window-dots {
@@ -163,7 +167,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      margin-left: 6px;
+      margin-left: 10px;
     }
 
     .brand-logo {
@@ -205,12 +209,77 @@
       letter-spacing: 0.18em;
     }
 
-    .browser-main {
+    .top-right-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .settings-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.12), rgba(8, 12, 32, 0.95));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+    }
+
+    .settings-btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 0%, rgba(92, 141, 255, 0.4), transparent 60%);
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+
+    .settings-btn:hover {
+      border-color: rgba(92, 141, 255, 0.7);
+      color: var(--text-main);
+      box-shadow: 0 0 0 1px rgba(92, 141, 255, 0.4), 0 10px 20px rgba(0, 0, 0, 0.7);
+      transform: translateY(-1px);
+    }
+
+    .settings-btn:hover::after {
+      opacity: 1;
+    }
+
+    .settings-btn:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .settings-icon {
+      font-size: 16px;
+    }
+
+    .main-row {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .browser {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      padding: 10px 16px 14px;
+      padding: 10px 14px 14px;
       gap: 8px;
-      background: radial-gradient(circle at bottom right, rgba(92, 141, 255, 0.12), transparent 60%);
+      position: relative;
+      z-index: 1;
+      transition: transform var(--transition-slow);
+    }
+
+    .browser.shifted {
+      transform: translateX(calc(-1 * var(--chat-width) / 4));
     }
 
     .tab-bar {
@@ -279,16 +348,6 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-
-    .tab-close {
-      margin-left: auto;
-      font-size: 11px;
-      opacity: 0.6;
-    }
-
-    .tab-close:hover {
-      opacity: 1;
     }
 
     .nav-row {
@@ -420,6 +479,12 @@
       height: 100%;
       border: none;
       background: #050814;
+      opacity: 1;
+      transition: opacity var(--transition-med);
+    }
+
+    .content-iframe.fading {
+      opacity: 0;
     }
 
     .content-overlay {
@@ -594,12 +659,103 @@
       color: var(--accent);
     }
 
-    .chat-panel {
+    /* CHAT BUTTON STYLES */
+
+    .chat-toggle {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      z-index: 5;
+      cursor: pointer;
+      transition: transform var(--transition-fast), filter var(--transition-fast);
+    }
+
+    .chat-toggle:hover {
+      transform: translateY(-50%) scale(1.05);
+      filter: brightness(1.1);
+    }
+
+    .chat-toggle-pill,
+    .chat-toggle-orb {
+      display: none;
+    }
+
+    .chat-toggle-pill.active {
       display: flex;
-      flex-direction: column;
-      background: radial-gradient(circle at top right, rgba(92, 141, 255, 0.18), rgba(5, 8, 25, 0.98));
+      align-items: center;
+      justify-content: center;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(92, 141, 255, 0.9);
+      background: linear-gradient(135deg, rgba(92, 141, 255, 0.95), rgba(155, 92, 255, 0.95));
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      box-shadow: 0 14px 30px rgba(92, 141, 255, 0.9);
+    }
+
+    .chat-toggle-orb.active {
+      display: flex;
+      width: 54px;
+      height: 54px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #ffffff, #5c8dff 45%, #020515 100%);
+      box-shadow:
+        0 0 25px rgba(92, 141, 255, 0.9),
+        0 0 60px rgba(155, 92, 255, 0.7);
+      align-items: center;
+      justify-content: center;
       position: relative;
       overflow: hidden;
+    }
+
+    .chat-toggle-orb::after {
+      content: "CHAT";
+      position: absolute;
+      bottom: 6px;
+      font-size: 9px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .chat-toggle-orb-inner {
+      width: 70%;
+      height: 70%;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.9), rgba(155, 92, 255, 0.9));
+      opacity: 0.9;
+      animation: orbPulse 3s ease-in-out infinite;
+    }
+
+    @keyframes orbPulse {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.08); opacity: 1; }
+    }
+
+    /* CHAT PANEL */
+
+    .chat-panel {
+      position: absolute;
+      top: 46px;
+      right: 0;
+      bottom: 0;
+      width: var(--chat-width);
+      background: radial-gradient(circle at top right, rgba(92, 141, 255, 0.18), rgba(5, 8, 25, 0.98));
+      border-left: 1px solid var(--border-subtle);
+      box-shadow: -18px 0 40px rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      transform: translateX(100%);
+      transition: transform var(--transition-slow);
+      z-index: 4;
+    }
+
+    .chat-panel.open {
+      transform: translateX(0);
     }
 
     .chat-header {
@@ -647,6 +803,28 @@
       border-radius: 999px;
       background: #2ecc71;
       box-shadow: 0 0 10px rgba(46, 204, 113, 0.9);
+    }
+
+    .chat-close-btn {
+      margin-left: 8px;
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(8, 12, 32, 0.96);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      cursor: pointer;
+      transition: border-color var(--transition-fast), color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .chat-close-btn:hover {
+      border-color: rgba(92, 141, 255, 0.7);
+      color: var(--text-main);
+      transform: translateY(-1px);
     }
 
     .chat-body {
@@ -841,47 +1019,192 @@
       min-height: 14px;
     }
 
-    @media (max-width: 980px) {
-      .shell {
-        grid-template-columns: 1fr;
-        height: 92vh;
+    /* SETTINGS PANEL */
+
+    .settings-panel {
+      position: absolute;
+      top: 46px;
+      left: 0;
+      bottom: 0;
+      width: 320px;
+      background: radial-gradient(circle at top left, rgba(92, 141, 255, 0.18), rgba(5, 8, 25, 0.98));
+      border-right: 1px solid var(--border-subtle);
+      box-shadow: 18px 0 40px rgba(0, 0, 0, 0.9);
+      transform: translateX(-100%);
+      transition: transform var(--transition-slow);
+      z-index: 4;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .settings-panel.open {
+      transform: translateX(0);
+    }
+
+    .settings-header {
+      padding: 12px 14px 10px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .settings-title {
+      font-size: 13px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .settings-subtitle {
+      font-size: 11px;
+      color: var(--accent-soft-2);
+    }
+
+    .settings-body {
+      flex: 1;
+      padding: 10px 14px 14px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .settings-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .settings-card {
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: linear-gradient(145deg, rgba(8, 12, 32, 0.96), rgba(9, 13, 35, 0.98));
+      padding: 10px 11px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.7);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .settings-label {
+      font-size: 12px;
+      color: var(--text-main);
+    }
+
+    .settings-description {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .toggle-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .toggle-pill {
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(5, 8, 25, 0.9);
+      font-size: 11px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .toggle-pill.active {
+      border-color: rgba(92, 141, 255, 0.9);
+      background: rgba(92, 141, 255, 0.18);
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .switch {
+      position: relative;
+      width: 38px;
+      height: 20px;
+      border-radius: 999px;
+      background: rgba(8, 12, 32, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: pointer;
+      transition: border-color var(--transition-fast), background var(--transition-fast);
+    }
+
+    .switch-thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(154, 164, 198, 0.9);
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+      transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .switch.on {
+      border-color: rgba(92, 141, 255, 0.9);
+      background: rgba(92, 141, 255, 0.18);
+    }
+
+    .switch.on .switch-thumb {
+      transform: translateX(16px);
+      background: #5c8dff;
+      box-shadow: 0 0 12px rgba(92, 141, 255, 0.9);
+    }
+
+    .settings-footer {
+      font-size: 10px;
+      color: var(--text-muted);
+      padding: 6px 14px 10px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 900px) {
+      .chat-panel {
+        width: 100%;
       }
-      .browser {
-        border-right: none;
-        border-bottom: 1px solid var(--border-subtle);
+      :root {
+        --chat-width: 100%;
+      }
+      .browser.shifted {
+        transform: translateX(0);
+      }
+      .chat-toggle {
+        right: 8px;
       }
     }
 
     @media (max-width: 640px) {
-      body {
-        padding: 8px;
-      }
-      .shell {
-        border-radius: 18px;
-      }
-      .browser-header {
-        padding-inline: 10px;
-      }
-      .browser-main {
-        padding-inline: 10px;
-      }
-      .chat-header {
-        padding-inline: 10px;
-      }
-      .chat-body {
+      .browser {
         padding-inline: 8px;
+      }
+      .content-wrapper {
+        border-radius: 12px;
       }
     }
   </style>
 </head>
 <body>
-  <div class="galaxy-orbit"></div>
-  <div class="starfield"></div>
+  <div class="nebula-bg"></div>
+  <div class="starfield" id="starfield"></div>
+  <div class="parallax-layer" id="parallaxLayer"></div>
 
   <div class="shell">
-    <!-- LEFT: BROWSER -->
-    <div class="browser">
-      <div class="browser-header">
+    <div class="top-bar">
+      <div style="display:flex;align-items:center;gap:10px;">
         <div class="window-dots">
           <div class="dot"></div>
           <div class="dot"></div>
@@ -895,18 +1218,91 @@
           </div>
         </div>
       </div>
+      <div class="top-right-controls">
+        <button class="settings-btn" id="settingsBtn" title="Settings">
+          <span class="settings-icon">⚙</span>
+        </button>
+      </div>
+    </div>
 
-      <div class="browser-main">
+    <div class="main-row">
+      <!-- SETTINGS PANEL -->
+      <div class="settings-panel" id="settingsPanel">
+        <div class="settings-header">
+          <div class="settings-title">Settings</div>
+          <div class="settings-subtitle">Tune GalaxyBrowserV2 to your style.</div>
+        </div>
+        <div class="settings-body">
+          <div>
+            <div class="settings-section-title">Chat Button Style</div>
+            <div class="settings-card">
+              <div class="settings-row">
+                <div class="settings-label">Appearance</div>
+              </div>
+              <div class="settings-description">
+                Choose how the chat toggle looks on the right edge.
+              </div>
+              <div class="toggle-group">
+                <button class="toggle-pill" data-style="pill" id="stylePill">Neon Pill</button>
+                <button class="toggle-pill" data-style="orb" id="styleOrb">Hologram Orb</button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="settings-section-title">Visual Effects</div>
+            <div class="settings-card">
+              <div class="settings-row">
+                <div>
+                  <div class="settings-label">Starfield</div>
+                  <div class="settings-description">Toggle the animated starfield background.</div>
+                </div>
+                <div class="switch" id="starfieldSwitch">
+                  <div class="switch-thumb"></div>
+                </div>
+              </div>
+              <div class="settings-row">
+                <div>
+                  <div class="settings-label">Parallax Glow</div>
+                  <div class="settings-description">Subtle parallax nebula movement.</div>
+                </div>
+                <div class="switch" id="parallaxSwitch">
+                  <div class="switch-thumb"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="settings-section-title">Animations</div>
+            <div class="settings-card">
+              <div class="settings-row">
+                <div>
+                  <div class="settings-label">Iframe Fade</div>
+                  <div class="settings-description">Fade pages in when they load.</div>
+                </div>
+                <div class="switch" id="iframeFadeSwitch">
+                  <div class="switch-thumb"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="settings-footer">
+          GalaxyBrowserV2 · <span>William</span> · Settings are stored locally in this browser.
+        </div>
+      </div>
+
+      <!-- BROWSER -->
+      <div class="browser" id="browser">
         <div class="tab-bar">
           <div class="tab active" data-target="web">
             <div class="tab-icon"></div>
             <div class="tab-title">Web</div>
-            <div class="tab-close">●</div>
           </div>
           <div class="tab" data-target="about">
             <div class="tab-icon"></div>
             <div class="tab-title">About / Owner</div>
-            <div class="tab-close">●</div>
           </div>
         </div>
 
@@ -940,7 +1336,7 @@
           <iframe
             id="webView"
             class="content-iframe"
-            src="https://duckduckgo.com/?q=GalaxyBrowserV2+by+William"
+            src="https://williampitcher347-sys.github.io/Galaxia-store/"
           ></iframe>
           <div id="aboutPage" style="display:none;">
             <div class="about-page">
@@ -970,7 +1366,7 @@
                   <div class="copyright-text">
                     <span class="copyright-strong">Copyright © <span id="copyrightYear"></span> William.</span>
                     All rights reserved. This code, layout, and design are provided for personal use by the owner.
-                    You are <strong>not permitted</strong> to copy, redistribute, or claim ownership of this code or any
+                    You are not permitted to copy, redistribute, or claim ownership of this code or any
                     distinctive design elements without explicit permission from William.
                   </div>
                   <div class="copyright-text" style="margin-top:8px;">
@@ -987,74 +1383,100 @@
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- RIGHT: CHAT PANEL -->
-    <div class="chat-panel">
-      <div class="chat-header">
-        <div class="chat-title-block">
-          <div class="chat-title">Galaxia Chat</div>
-          <div class="chat-subtitle">Connected to MockAPI · Galaxia-messages</div>
-        </div>
-        <div class="chat-status-pill">
-          <div class="status-dot"></div>
-          Live endpoint
+      <!-- CHAT TOGGLE -->
+      <div class="chat-toggle" id="chatToggle">
+        <div class="chat-toggle-pill active" id="chatTogglePill">CHAT</div>
+        <div class="chat-toggle-orb" id="chatToggleOrb">
+          <div class="chat-toggle-orb-inner"></div>
         </div>
       </div>
 
-      <div class="chat-body">
-        <div class="chat-messages" id="chatMessages">
-          <div class="chat-empty" id="chatEmpty">No messages yet. Be the first to speak into the void.</div>
+      <!-- CHAT PANEL -->
+      <div class="chat-panel" id="chatPanel">
+        <div class="chat-header">
+          <div class="chat-title-block">
+            <div class="chat-title">Galaxia Chat</div>
+            <div class="chat-subtitle">Connected to MockAPI · Galaxia-messages</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div class="chat-status-pill">
+              <div class="status-dot"></div>
+              Live endpoint
+            </div>
+            <button class="chat-close-btn" id="chatCloseBtn" title="Close chat">✕</button>
+          </div>
         </div>
 
-        <form class="chat-form" id="chatForm">
-          <div class="chat-row">
-            <input
-              type="text"
-              id="chatName"
-              class="chat-name-input"
-              placeholder="name / handle"
-              autocomplete="off"
-            />
-            <input
-              type="text"
-              id="chatInput"
-              class="chat-input"
-              placeholder="type a message..."
-              autocomplete="off"
-            />
-            <button type="submit" class="chat-send-btn">Send</button>
+        <div class="chat-body">
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-empty" id="chatEmpty">No messages yet. Be the first to speak into the void.</div>
           </div>
-          <div class="chat-footer">
-            <div>Endpoint: <span>/Galaxia-messages</span></div>
-            <div>Messages sync every <span>5s</span></div>
-          </div>
-          <div class="chat-error" id="chatError"></div>
-        </form>
+
+          <form class="chat-form" id="chatForm">
+            <div class="chat-row">
+              <input
+                type="text"
+                id="chatName"
+                class="chat-name-input"
+                placeholder="name / handle"
+                autocomplete="off"
+              />
+              <input
+                type="text"
+                id="chatInput"
+                class="chat-input"
+                placeholder="type a message..."
+                autocomplete="off"
+              />
+              <button type="submit" class="chat-send-btn">Send</button>
+            </div>
+            <div class="chat-footer">
+              <div>Endpoint: <span>/Galaxia-messages</span></div>
+              <div>Messages sync every <span>5s</span></div>
+            </div>
+            <div class="chat-error" id="chatError"></div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    // -----------------------------
     // BASIC STATE
-    // -----------------------------
     const iframe = document.getElementById("webView");
     const contentWrapper = document.getElementById("contentWrapper");
     const addressInput = document.getElementById("addressInput");
     const aboutPage = document.getElementById("aboutPage");
     const tabs = document.querySelectorAll(".tab");
     const copyrightYear = document.getElementById("copyrightYear");
+    const browserEl = document.getElementById("browser");
+
+    const chatEndpoint = "https://696fdb3ca06046ce61880d4c.mockapi.io/Galaxia-messages";
+
+    const chatPanel = document.getElementById("chatPanel");
+    const chatToggle = document.getElementById("chatToggle");
+    const chatTogglePill = document.getElementById("chatTogglePill");
+    const chatToggleOrb = document.getElementById("chatToggleOrb");
+    const chatCloseBtn = document.getElementById("chatCloseBtn");
+
+    const settingsBtn = document.getElementById("settingsBtn");
+    const settingsPanel = document.getElementById("settingsPanel");
+    const stylePillBtn = document.getElementById("stylePill");
+    const styleOrbBtn = document.getElementById("styleOrb");
+    const starfieldSwitch = document.getElementById("starfieldSwitch");
+    const parallaxSwitch = document.getElementById("parallaxSwitch");
+    const iframeFadeSwitch = document.getElementById("iframeFadeSwitch");
+    const starfieldEl = document.getElementById("starfield");
+    const parallaxLayerEl = document.getElementById("parallaxLayer");
 
     const historyStack = [];
     let historyIndex = -1;
     let currentMode = "web"; // "web" or "about"
+    let iframeFadeEnabled = true;
+    let parallaxEnabled = true;
 
-    const chatEndpoint = "https://696fdb3ca06046ce61880d4c.mockapi.io/Galaxia-messages";
-
-    // -----------------------------
     // UTILITIES
-    // -----------------------------
     function isLikelyUrl(value) {
       return value.includes(".") && !value.includes(" ");
     }
@@ -1077,8 +1499,10 @@
     function setLoading(isLoading) {
       if (isLoading) {
         contentWrapper.classList.add("loading");
+        if (iframeFadeEnabled) iframe.classList.add("fading");
       } else {
         contentWrapper.classList.remove("loading");
+        iframe.classList.remove("fading");
       }
     }
 
@@ -1113,9 +1537,7 @@
       setLoading(false);
     }
 
-    // -----------------------------
     // TABS
-    // -----------------------------
     tabs.forEach((tab) => {
       tab.addEventListener("click", () => {
         tabs.forEach((t) => t.classList.remove("active"));
@@ -1132,9 +1554,7 @@
       });
     });
 
-    // -----------------------------
     // NAV BUTTONS
-    // -----------------------------
     document.getElementById("backBtn").addEventListener("click", () => {
       if (historyIndex > 0) {
         historyIndex--;
@@ -1174,9 +1594,7 @@
       }
     });
 
-    // -----------------------------
     // ADDRESS INPUT
-    // -----------------------------
     addressInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -1190,22 +1608,16 @@
       setLoading(false);
     });
 
-    // -----------------------------
     // ABOUT PAGE YEAR
-    // -----------------------------
     copyrightYear.textContent = new Date().getFullYear();
 
-    // -----------------------------
     // CHAT LOGIC
-    // -----------------------------
     const chatMessagesEl = document.getElementById("chatMessages");
     const chatEmptyEl = document.getElementById("chatEmpty");
     const chatForm = document.getElementById("chatForm");
     const chatInput = document.getElementById("chatInput");
     const chatNameInput = document.getElementById("chatName");
     const chatErrorEl = document.getElementById("chatError");
-
-    let lastMessages = [];
 
     function renderMessages(messages) {
       chatMessagesEl.innerHTML = "";
@@ -1256,7 +1668,6 @@
         const res = await fetch(chatEndpoint);
         if (!res.ok) throw new Error("Failed to fetch messages");
         const data = await res.json();
-        lastMessages = data;
         renderMessages(data);
       } catch (err) {
         chatErrorEl.textContent = "Could not sync messages. Check your endpoint or network.";
@@ -1297,6 +1708,134 @@
 
     fetchMessages();
     setInterval(fetchMessages, 5000);
+
+    // CHAT PANEL TOGGLE
+    function openChat() {
+      chatPanel.classList.add("open");
+      browserEl.classList.add("shifted");
+    }
+
+    function closeChat() {
+      chatPanel.classList.remove("open");
+      browserEl.classList.remove("shifted");
+    }
+
+    chatToggle.addEventListener("click", () => {
+      if (chatPanel.classList.contains("open")) {
+        closeChat();
+      } else {
+        openChat();
+      }
+    });
+
+    chatCloseBtn.addEventListener("click", () => {
+      closeChat();
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeChat();
+        settingsPanel.classList.remove("open");
+      }
+    });
+
+    // SETTINGS PANEL TOGGLE
+    settingsBtn.addEventListener("click", () => {
+      settingsPanel.classList.toggle("open");
+    });
+
+    // SETTINGS: CHAT BUTTON STYLE
+    function applyChatStyle(style) {
+      if (style === "orb") {
+        chatTogglePill.classList.remove("active");
+        chatToggleOrb.classList.add("active");
+        stylePillBtn.classList.remove("active");
+        styleOrbBtn.classList.add("active");
+      } else {
+        chatTogglePill.classList.add("active");
+        chatToggleOrb.classList.remove("active");
+        stylePillBtn.classList.add("active");
+        styleOrbBtn.classList.remove("active");
+      }
+      localStorage.setItem("gbv2_chat_style", style);
+    }
+
+    stylePillBtn.addEventListener("click", () => {
+      applyChatStyle("pill");
+    });
+
+    styleOrbBtn.addEventListener("click", () => {
+      applyChatStyle("orb");
+    });
+
+    // SETTINGS: SWITCHES
+    function toggleSwitch(switchEl, on) {
+      if (on) {
+        switchEl.classList.add("on");
+      } else {
+        switchEl.classList.remove("on");
+      }
+    }
+
+    function applyStarfield(on) {
+      toggleSwitch(starfieldSwitch, on);
+      starfieldEl.classList.toggle("off", !on);
+      localStorage.setItem("gbv2_starfield", on ? "1" : "0");
+    }
+
+    function applyParallax(on) {
+      toggleSwitch(parallaxSwitch, on);
+      parallaxLayerEl.classList.toggle("off", !on);
+      parallaxEnabled = on;
+      localStorage.setItem("gbv2_parallax", on ? "1" : "0");
+    }
+
+    function applyIframeFade(on) {
+      toggleSwitch(iframeFadeSwitch, on);
+      iframeFadeEnabled = on;
+      localStorage.setItem("gbv2_iframe_fade", on ? "1" : "0");
+    }
+
+    starfieldSwitch.addEventListener("click", () => {
+      const on = !starfieldSwitch.classList.contains("on");
+      applyStarfield(on);
+    });
+
+    parallaxSwitch.addEventListener("click", () => {
+      const on = !parallaxSwitch.classList.contains("on");
+      applyParallax(on);
+    });
+
+    iframeFadeSwitch.addEventListener("click", () => {
+      const on = !iframeFadeSwitch.classList.contains("on");
+      applyIframeFade(on);
+    });
+
+    // PARALLAX MOUSE MOVE
+    document.addEventListener("mousemove", (e) => {
+      if (!parallaxEnabled) return;
+      const x = (e.clientX / window.innerWidth - 0.5) * 20;
+      const y = (e.clientY / window.innerHeight - 0.5) * 20;
+      parallaxLayerEl.style.transform = `translate(${x}px, ${y}px)`;
+    });
+
+    // INITIAL SETTINGS LOAD
+    (function initSettings() {
+      const savedStyle = localStorage.getItem("gbv2_chat_style") || "pill";
+      applyChatStyle(savedStyle);
+
+      const starfieldOn = localStorage.getItem("gbv2_starfield");
+      applyStarfield(starfieldOn !== "0");
+
+      const parallaxOn = localStorage.getItem("gbv2_parallax");
+      applyParallax(parallaxOn !== "0");
+
+      const iframeFadeOn = localStorage.getItem("gbv2_iframe_fade");
+      applyIframeFade(iframeFadeOn !== "0");
+    })();
+
+    // INITIAL HISTORY
+    pushHistory("https://williampitcher347-sys.github.io/Galaxia-store/");
   </script>
 </body>
 </html>
