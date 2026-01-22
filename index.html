@@ -1,1 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GalaxyBrowserV2 - by William</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg-main: #020515;
+      --bg-panel: #070b1f;
+      --bg-elevated: #0d1228;
+      --accent: #5c8dff;
+      --accent-strong: #9b5cff;
+      --accent-soft: rgba(92, 141, 255, 0.25);
+      --accent-soft-2: rgba(155, 92, 255, 0.25);
+      --text-main: #f5f7ff;
+      --text-muted: #9aa4c6;
+      --danger: #ff4f6a;
+      --border-subtle: #181f35;
+      --radius-lg: 16px;
+      --radius-md: 11px;
+      --radius-sm: 7px;
+      --shadow-soft: 0 22px 55px rgba(0, 0, 0, 0.7);
+      --shadow-glow: 0 0 30px rgba(92, 141, 255, 0.6);
+      --transition-fast: 0.18s ease-out;
+      --transition-med: 0.28s ease;
+      --transition-slow: 0.45s ease;
+    }
 
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #1a2450 0, #020515 45%, #000 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      overflow: hidden;
+    }
+
+    .galaxy-orbit {
+      position: fixed;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(155, 92, 255, 0.18), transparent 55%),
+        radial-gradient(circle at 90% 100%, rgba(92, 141, 255, 0.16), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+      filter: blur(2px);
+      z-index: -2;
+    }
+
+    .starfield {
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(1px 1px at 10% 20%, rgba(255, 255, 255, 0.4), transparent),
+        radial-gradient(1px 1px at 80% 30%, rgba(255, 255, 255, 0.35), transparent),
+        radial-gradient(1px 1px at 50% 80%, rgba(255, 255, 255, 0.3), transparent),
+        radial-gradient(1px 1px at 20% 70%, rgba(255, 255, 255, 0.25), transparent);
+      opacity: 0.6;
+      mix-blend-mode: screen;
+      pointer-events: none;
+      z-index: -1;
+      animation: starDrift 40s linear infinite;
+    }
+
+    @keyframes starDrift {
+      0% { transform: translate3d(0, 0, 0); }
+      50% { transform: translate3d(-20px, -10px, 0); }
+      100% { transform: translate3d(0, 0, 0); }
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 1320px;
+      height: 90vh;
+      max-height: 760px;
+      background: linear-gradient(135deg, rgba(9, 13, 35, 0.96), rgba(5, 8, 25, 0.98));
+      border-radius: 26px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: var(--shadow-soft), 0 0 0 1px rgba(255, 255, 255, 0.02);
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(320px, 1.1fr);
+      overflow: hidden;
+      position: relative;
+      backdrop-filter: blur(18px) saturate(130%);
+    }
+
+    .shell::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: conic-gradient(
+        from 210deg,
+        rgba(92, 141, 255, 0.2),
+        transparent 18%,
+        transparent 55%,
+        rgba(155, 92, 255, 0.2),
+        transparent 80%,
+        rgba(92, 141, 255, 0.2)
+      );
+      opacity: 0;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      transition: opacity var(--transition-slow);
+    }
+
+    .shell:hover::before {
+      opacity: 1;
+    }
+
+    .browser {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border-subtle);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .browser-header {
+      padding: 12px 18px 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: radial-gradient(circle at top left, rgba(155, 92, 255, 0.18), transparent 55%);
+      position: relative;
+      z-index: 2;
+    }
+
+    .window-dots {
+      display: flex;
+      gap: 7px;
+    }
+
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 999px;
+      background: #ff5f57;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+    }
+
+    .dot:nth-child(2) {
+      background: #febc2e;
+    }
+
+    .dot:nth-child(3) {
+      background: #28c840;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: 6px;
+    }
+
+    .brand-logo {
+      width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #ffffff, #9b5cff 45%, #020515 100%);
+      box-shadow: 0 0 18px rgba(155, 92, 255, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-logo::after {
+      content: "";
+      position: absolute;
+      inset: 35% -40%;
+      background: linear-gradient(120deg, rgba(255, 255, 255, 0.7), transparent);
+      transform: translateX(-120%);
+      animation: logoSweep 4s ease-in-out infinite;
+    }
+
+    @keyframes logoSweep {
+      0%, 60% { transform: translateX(-120%); }
+      80% { transform: translateX(40%); }
+      100% { transform: translateX(120%); }
+    }
+
+    .brand-text-main {
+      font-size: 14px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .brand-text-sub {
+      font-size: 11px;
+      color: var(--accent-soft-2);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .browser-main {
+      display: flex;
+      flex-direction: column;
+      padding: 10px 16px 14px;
+      gap: 8px;
+      background: radial-gradient(circle at bottom right, rgba(92, 141, 255, 0.12), transparent 60%);
+    }
+
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .tab {
+      flex: 0 0 auto;
+      min-width: 120px;
+      max-width: 220px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(8, 12, 32, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .tab::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(92, 141, 255, 0.4), transparent 60%);
+      opacity: 0;
+      transition: opacity var(--transition-med);
+      pointer-events: none;
+    }
+
+    .tab.active {
+      background: linear-gradient(135deg, rgba(92, 141, 255, 0.22), rgba(9, 13, 35, 0.95));
+      border-color: rgba(92, 141, 255, 0.7);
+      color: var(--text-main);
+      box-shadow: 0 0 0 1px rgba(92, 141, 255, 0.4), 0 12px 28px rgba(0, 0, 0, 0.7);
+      transform: translateY(-1px);
+    }
+
+    .tab.active::before {
+      opacity: 1;
+    }
+
+    .tab:hover:not(.active) {
+      border-color: rgba(92, 141, 255, 0.4);
+      color: var(--text-main);
+      transform: translateY(-1px);
+    }
+
+    .tab-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      background: radial-gradient(circle at 30% 20%, #ffffff, #5c8dff 45%, #020515 100%);
+      box-shadow: 0 0 10px rgba(92, 141, 255, 0.7);
+      flex-shrink: 0;
+    }
+
+    .tab-title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tab-close {
+      margin-left: auto;
+      font-size: 11px;
+      opacity: 0.6;
+    }
+
+    .tab-close:hover {
+      opacity: 1;
+    }
+
+    .nav-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 6px;
+    }
+
+    .nav-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.12), rgba(8, 12, 32, 0.95));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 14px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast);
+    }
+
+    .nav-btn::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 30% 0%, rgba(92, 141, 255, 0.4), transparent 60%);
+      opacity: 0;
+      transition: opacity var(--transition-fast);
+    }
+
+    .nav-btn:hover {
+      border-color: rgba(92, 141, 255, 0.7);
+      color: var(--text-main);
+      box-shadow: 0 0 0 1px rgba(92, 141, 255, 0.4), 0 10px 20px rgba(0, 0, 0, 0.7);
+      transform: translateY(-1px);
+    }
+
+    .nav-btn:hover::after {
+      opacity: 1;
+    }
+
+    .nav-btn:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .address-bar {
+      flex: 1;
+      position: relative;
+    }
+
+    .address-input {
+      width: 100%;
+      padding: 7px 34px 7px 34px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.08), rgba(8, 12, 32, 0.98));
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .address-input::placeholder {
+      color: rgba(154, 164, 198, 0.7);
+    }
+
+    .address-bar::before {
+      content: "https://";
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: rgba(154, 164, 198, 0.7);
+      pointer-events: none;
+    }
+
+    .address-bar:focus-within .address-input {
+      border-color: rgba(92, 141, 255, 0.9);
+      box-shadow: var(--shadow-glow);
+      transform: translateY(-1px);
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      color: rgba(154, 164, 198, 0.9);
+      pointer-events: none;
+    }
+
+    .search-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-left: 4px;
+      opacity: 0.8;
+    }
+
+    .search-hint span {
+      color: var(--accent);
+    }
+
+    .content-wrapper {
+      flex: 1;
+      margin-top: 6px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      background: radial-gradient(circle at top, rgba(92, 141, 255, 0.12), rgba(5, 8, 25, 0.98));
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8);
+    }
+
+    .content-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #050814;
+    }
+
+    .content-overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 10% 0%, rgba(155, 92, 255, 0.2), transparent 55%);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity var(--transition-med);
+    }
+
+    .content-wrapper.loading .content-overlay {
+      opacity: 1;
+      animation: pulseOverlay 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulseOverlay {
+      0%, 100% { opacity: 0.1; }
+      50% { opacity: 0.35; }
+    }
+
+    .loading-orbit {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity var(--transition-med);
+    }
+
+    .content-wrapper.loading .loading-orbit {
+      opacity: 1;
+    }
+
+    .orbit-ring {
+      width: 80px;
+      height: 80px;
+      border-radius: 999px;
+      border: 1px solid rgba(92, 141, 255, 0.4);
+      border-top-color: rgba(155, 92, 255, 0.9);
+      border-right-color: rgba(92, 141, 255, 0.9);
+      box-shadow: 0 0 20px rgba(92, 141, 255, 0.7);
+      animation: orbitSpin 1.2s linear infinite;
+      position: relative;
+    }
+
+    .orbit-core {
+      position: absolute;
+      inset: 22px;
+      border-radius: inherit;
+      background: radial-gradient(circle at 30% 20%, #ffffff, #5c8dff 45%, #020515 100%);
+      box-shadow: 0 0 25px rgba(92, 141, 255, 0.9);
+    }
+
+    @keyframes orbitSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    .about-page {
+      width: 100%;
+      height: 100%;
+      padding: 26px 26px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      background: radial-gradient(circle at top left, rgba(155, 92, 255, 0.18), rgba(5, 8, 25, 0.98));
+      color: var(--text-main);
+    }
+
+    .about-heading {
+      font-size: 22px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .about-subtitle {
+      font-size: 13px;
+      color: var(--text-muted);
+      max-width: 520px;
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .about-card {
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: linear-gradient(145deg, rgba(8, 12, 32, 0.96), rgba(9, 13, 35, 0.98));
+      padding: 16px 18px;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.7);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-card::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: radial-gradient(circle at 0 0, rgba(92, 141, 255, 0.3), transparent 55%);
+      opacity: 0.4;
+      mix-blend-mode: screen;
+    }
+
+    .about-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .about-owner {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .about-email {
+      font-size: 13px;
+      color: var(--accent);
+      margin-top: 4px;
+    }
+
+    .about-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .chip {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(5, 8, 25, 0.9);
+      color: var(--text-muted);
+    }
+
+    .chip.accent {
+      border-color: rgba(92, 141, 255, 0.8);
+      color: var(--accent);
+      background: rgba(92, 141, 255, 0.12);
+    }
+
+    .copyright-text {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-top: 6px;
+    }
+
+    .copyright-strong {
+      color: var(--accent-strong);
+      font-weight: 600;
+    }
+
+    .footer-line {
+      font-size: 10px;
+      color: rgba(154, 164, 198, 0.7);
+      margin-top: auto;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .footer-line span {
+      color: var(--accent);
+    }
+
+    .chat-panel {
+      display: flex;
+      flex-direction: column;
+      background: radial-gradient(circle at top right, rgba(92, 141, 255, 0.18), rgba(5, 8, 25, 0.98));
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: 12px 16px 10px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .chat-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .chat-title {
+      font-size: 13px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .chat-subtitle {
+      font-size: 11px;
+      color: var(--accent-soft-2);
+    }
+
+    .chat-status-pill {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(92, 141, 255, 0.7);
+      background: rgba(5, 8, 25, 0.9);
+      color: var(--accent);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #2ecc71;
+      box-shadow: 0 0 10px rgba(46, 204, 113, 0.9);
+    }
+
+    .chat-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 12px 12px;
+      gap: 8px;
+    }
+
+    .chat-messages {
+      flex: 1;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: radial-gradient(circle at top, rgba(92, 141, 255, 0.12), rgba(5, 8, 25, 0.98));
+      padding: 10px 10px 12px;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.7);
+    }
+
+    .chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chat-messages::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: rgba(92, 141, 255, 0.6);
+      border-radius: 999px;
+    }
+
+    .message {
+      margin-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      animation: messageIn 0.25s ease-out;
+    }
+
+    @keyframes messageIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .message-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .message-bubble {
+      align-self: flex-start;
+      max-width: 100%;
+      padding: 7px 9px;
+      border-radius: 11px;
+      background: rgba(8, 12, 32, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 12px;
+      line-height: 1.4;
+      color: var(--text-main);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .message-bubble::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 0 0, rgba(92, 141, 255, 0.25), transparent 60%);
+      opacity: 0.4;
+      mix-blend-mode: screen;
+    }
+
+    .message.self .message-bubble {
+      align-self: flex-end;
+      background: linear-gradient(135deg, rgba(92, 141, 255, 0.9), rgba(155, 92, 255, 0.9));
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 18px rgba(92, 141, 255, 0.8);
+    }
+
+    .message.self .message-bubble::before {
+      opacity: 0;
+    }
+
+    .message.self .message-meta {
+      justify-content: flex-end;
+    }
+
+    .chat-empty {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .chat-form {
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .chat-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .chat-input,
+    .chat-name-input {
+      flex: 1;
+      padding: 7px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(8, 12, 32, 0.96);
+      color: var(--text-main);
+      font-size: 12px;
+      outline: none;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .chat-input::placeholder,
+    .chat-name-input::placeholder {
+      color: rgba(154, 164, 198, 0.7);
+    }
+
+    .chat-input:focus,
+    .chat-name-input:focus {
+      border-color: rgba(92, 141, 255, 0.9);
+      box-shadow: 0 0 0 1px rgba(92, 141, 255, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .chat-send-btn {
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(92, 141, 255, 0.9);
+      background: linear-gradient(135deg, rgba(92, 141, 255, 0.95), rgba(155, 92, 255, 0.95));
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(92, 141, 255, 0.8);
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast), background var(--transition-fast);
+      white-space: nowrap;
+    }
+
+    .chat-send-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow: 0 14px 30px rgba(92, 141, 255, 0.9);
+    }
+
+    .chat-send-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 8px 18px rgba(92, 141, 255, 0.7);
+    }
+
+    .chat-footer {
+      font-size: 10px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .chat-footer span {
+      color: var(--accent);
+    }
+
+    .chat-error {
+      font-size: 11px;
+      color: var(--danger);
+      margin-top: 2px;
+      min-height: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .shell {
+        grid-template-columns: 1fr;
+        height: 92vh;
+      }
+      .browser {
+        border-right: none;
+        border-bottom: 1px solid var(--border-subtle);
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 8px;
+      }
+      .shell {
+        border-radius: 18px;
+      }
+      .browser-header {
+        padding-inline: 10px;
+      }
+      .browser-main {
+        padding-inline: 10px;
+      }
+      .chat-header {
+        padding-inline: 10px;
+      }
+      .chat-body {
+        padding-inline: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="galaxy-orbit"></div>
+  <div class="starfield"></div>
+
+  <div class="shell">
+    <!-- LEFT: BROWSER -->
+    <div class="browser">
+      <div class="browser-header">
+        <div class="window-dots">
+          <div class="dot"></div>
+          <div class="dot"></div>
+          <div class="dot"></div>
+        </div>
+        <div class="brand">
+          <div class="brand-logo"></div>
+          <div>
+            <div class="brand-text-main">GalaxyBrowserV2</div>
+            <div class="brand-text-sub">By William</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="browser-main">
+        <div class="tab-bar">
+          <div class="tab active" data-target="web">
+            <div class="tab-icon"></div>
+            <div class="tab-title">Web</div>
+            <div class="tab-close">●</div>
+          </div>
+          <div class="tab" data-target="about">
+            <div class="tab-icon"></div>
+            <div class="tab-title">About / Owner</div>
+            <div class="tab-close">●</div>
+          </div>
+        </div>
+
+        <div class="nav-row">
+          <div class="nav-buttons">
+            <button class="nav-btn" id="backBtn" title="Back">⟵</button>
+            <button class="nav-btn" id="forwardBtn" title="Forward">⟶</button>
+            <button class="nav-btn" id="reloadBtn" title="Reload">⟳</button>
+          </div>
+          <div class="address-bar">
+            <input
+              id="addressInput"
+              class="address-input"
+              type="text"
+              placeholder="type a URL or search the galaxy..."
+            />
+            <div class="search-icon">⌕</div>
+          </div>
+        </div>
+        <div class="search-hint">
+          <span>Tip:</span> Press Enter to go. If it’s not a URL, it searches the web.
+        </div>
+
+        <div class="content-wrapper" id="contentWrapper">
+          <div class="content-overlay"></div>
+          <div class="loading-orbit">
+            <div class="orbit-ring">
+              <div class="orbit-core"></div>
+            </div>
+          </div>
+          <iframe
+            id="webView"
+            class="content-iframe"
+            src="https://duckduckgo.com/?q=GalaxyBrowserV2+by+William"
+          ></iframe>
+          <div id="aboutPage" style="display:none;">
+            <div class="about-page">
+              <div>
+                <div class="about-heading">Owner & Credits</div>
+                <div class="about-subtitle">
+                  This instance of <strong>GalaxyBrowserV2</strong> is created and owned by William. All interface design,
+                  layout, and custom browser logic in this file are authored by William unless otherwise stated.
+                </div>
+              </div>
+
+              <div class="about-grid">
+                <div class="about-card">
+                  <div class="about-label">Owner</div>
+                  <div class="about-owner">William</div>
+                  <div class="about-email">Williampitcher347@gmail.com</div>
+                  <div class="about-chip-row">
+                    <div class="chip accent">GalaxyBrowserV2</div>
+                    <div class="chip">Custom UI</div>
+                    <div class="chip">Single-file build</div>
+                    <div class="chip">HTML · CSS · JavaScript</div>
+                  </div>
+                </div>
+
+                <div class="about-card">
+                  <div class="about-label">Code & Copyright</div>
+                  <div class="copyright-text">
+                    <span class="copyright-strong">Copyright © <span id="copyrightYear"></span> William.</span>
+                    All rights reserved. This code, layout, and design are provided for personal use by the owner.
+                    You are <strong>not permitted</strong> to copy, redistribute, or claim ownership of this code or any
+                    distinctive design elements without explicit permission from William.
+                  </div>
+                  <div class="copyright-text" style="margin-top:8px;">
+                    Unauthorized use, reproduction, or distribution of this file or its contents may violate copyright
+                    and intellectual property laws.
+                  </div>
+                </div>
+              </div>
+
+              <div class="footer-line">
+                GalaxyBrowserV2 · <span>William</span> · Single-file edition
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: CHAT PANEL -->
+    <div class="chat-panel">
+      <div class="chat-header">
+        <div class="chat-title-block">
+          <div class="chat-title">Galaxia Chat</div>
+          <div class="chat-subtitle">Connected to MockAPI · Galaxia-messages</div>
+        </div>
+        <div class="chat-status-pill">
+          <div class="status-dot"></div>
+          Live endpoint
+        </div>
+      </div>
+
+      <div class="chat-body">
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-empty" id="chatEmpty">No messages yet. Be the first to speak into the void.</div>
+        </div>
+
+        <form class="chat-form" id="chatForm">
+          <div class="chat-row">
+            <input
+              type="text"
+              id="chatName"
+              class="chat-name-input"
+              placeholder="name / handle"
+              autocomplete="off"
+            />
+            <input
+              type="text"
+              id="chatInput"
+              class="chat-input"
+              placeholder="type a message..."
+              autocomplete="off"
+            />
+            <button type="submit" class="chat-send-btn">Send</button>
+          </div>
+          <div class="chat-footer">
+            <div>Endpoint: <span>/Galaxia-messages</span></div>
+            <div>Messages sync every <span>5s</span></div>
+          </div>
+          <div class="chat-error" id="chatError"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // -----------------------------
+    // BASIC STATE
+    // -----------------------------
+    const iframe = document.getElementById("webView");
+    const contentWrapper = document.getElementById("contentWrapper");
+    const addressInput = document.getElementById("addressInput");
+    const aboutPage = document.getElementById("aboutPage");
+    const tabs = document.querySelectorAll(".tab");
+    const copyrightYear = document.getElementById("copyrightYear");
+
+    const historyStack = [];
+    let historyIndex = -1;
+    let currentMode = "web"; // "web" or "about"
+
+    const chatEndpoint = "https://696fdb3ca06046ce61880d4c.mockapi.io/Galaxia-messages";
+
+    // -----------------------------
+    // UTILITIES
+    // -----------------------------
+    function isLikelyUrl(value) {
+      return value.includes(".") && !value.includes(" ");
+    }
+
+    function buildUrlOrSearch(value) {
+      const trimmed = value.trim();
+      if (!trimmed) return null;
+
+      if (isLikelyUrl(trimmed)) {
+        if (/^https?:\/\//i.test(trimmed)) {
+          return trimmed;
+        }
+        return "https://" + trimmed;
+      }
+
+      const encoded = encodeURIComponent(trimmed);
+      return "https://duckduckgo.com/?q=" + encoded;
+    }
+
+    function setLoading(isLoading) {
+      if (isLoading) {
+        contentWrapper.classList.add("loading");
+      } else {
+        contentWrapper.classList.remove("loading");
+      }
+    }
+
+    function pushHistory(url) {
+      if (historyIndex < historyStack.length - 1) {
+        historyStack.splice(historyIndex + 1);
+      }
+      historyStack.push(url);
+      historyIndex = historyStack.length - 1;
+    }
+
+    function navigateTo(url) {
+      if (!url) return;
+      currentMode = "web";
+      iframe.style.display = "block";
+      aboutPage.style.display = "none";
+
+      setLoading(true);
+      iframe.src = url;
+      pushHistory(url);
+
+      try {
+        const clean = url.replace(/^https?:\/\//i, "");
+        addressInput.value = clean;
+      } catch (e) {}
+    }
+
+    function showAboutPage() {
+      currentMode = "about";
+      iframe.style.display = "none";
+      aboutPage.style.display = "block";
+      setLoading(false);
+    }
+
+    // -----------------------------
+    // TABS
+    // -----------------------------
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        tabs.forEach((t) => t.classList.remove("active"));
+        tab.classList.add("active");
+
+        const target = tab.getAttribute("data-target");
+        if (target === "about") {
+          showAboutPage();
+        } else {
+          currentMode = "web";
+          iframe.style.display = "block";
+          aboutPage.style.display = "none";
+        }
+      });
+    });
+
+    // -----------------------------
+    // NAV BUTTONS
+    // -----------------------------
+    document.getElementById("backBtn").addEventListener("click", () => {
+      if (historyIndex > 0) {
+        historyIndex--;
+        const url = historyStack[historyIndex];
+        currentMode = "web";
+        iframe.style.display = "block";
+        aboutPage.style.display = "none";
+        setLoading(true);
+        iframe.src = url;
+        try {
+          addressInput.value = url.replace(/^https?:\/\//i, "");
+        } catch (e) {}
+      }
+    });
+
+    document.getElementById("forwardBtn").addEventListener("click", () => {
+      if (historyIndex < historyStack.length - 1) {
+        historyIndex++;
+        const url = historyStack[historyIndex];
+        currentMode = "web";
+        iframe.style.display = "block";
+        aboutPage.style.display = "none";
+        setLoading(true);
+        iframe.src = url;
+        try {
+          addressInput.value = url.replace(/^https?:\/\//i, "");
+        } catch (e) {}
+      }
+    });
+
+    document.getElementById("reloadBtn").addEventListener("click", () => {
+      if (currentMode === "about") {
+        showAboutPage();
+      } else if (historyIndex >= 0) {
+        setLoading(true);
+        iframe.src = historyStack[historyIndex];
+      }
+    });
+
+    // -----------------------------
+    // ADDRESS INPUT
+    // -----------------------------
+    addressInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        const value = addressInput.value;
+        const url = buildUrlOrSearch(value);
+        navigateTo(url);
+      }
+    });
+
+    iframe.addEventListener("load", () => {
+      setLoading(false);
+    });
+
+    // -----------------------------
+    // ABOUT PAGE YEAR
+    // -----------------------------
+    copyrightYear.textContent = new Date().getFullYear();
+
+    // -----------------------------
+    // CHAT LOGIC
+    // -----------------------------
+    const chatMessagesEl = document.getElementById("chatMessages");
+    const chatEmptyEl = document.getElementById("chatEmpty");
+    const chatForm = document.getElementById("chatForm");
+    const chatInput = document.getElementById("chatInput");
+    const chatNameInput = document.getElementById("chatName");
+    const chatErrorEl = document.getElementById("chatError");
+
+    let lastMessages = [];
+
+    function renderMessages(messages) {
+      chatMessagesEl.innerHTML = "";
+      if (!messages || messages.length === 0) {
+        chatEmptyEl.style.display = "flex";
+        return;
+      }
+      chatEmptyEl.style.display = "none";
+
+      messages.forEach((msg) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "message";
+
+        const meta = document.createElement("div");
+        meta.className = "message-meta";
+
+        const name = document.createElement("span");
+        name.textContent = msg.name || "Anonymous";
+
+        const time = document.createElement("span");
+        const createdAt = msg.createdAt ? new Date(msg.createdAt) : null;
+        time.textContent = createdAt ? createdAt.toLocaleTimeString() : "";
+
+        meta.appendChild(name);
+        meta.appendChild(time);
+
+        const bubble = document.createElement("div");
+        bubble.className = "message-bubble";
+        bubble.textContent = msg.text || "";
+
+        wrapper.appendChild(meta);
+        wrapper.appendChild(bubble);
+
+        const selfName = chatNameInput.value.trim();
+        if (selfName && msg.name && msg.name.toLowerCase() === selfName.toLowerCase()) {
+          wrapper.classList.add("self");
+        }
+
+        chatMessagesEl.appendChild(wrapper);
+      });
+
+      chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+    }
+
+    async function fetchMessages() {
+      try {
+        chatErrorEl.textContent = "";
+        const res = await fetch(chatEndpoint);
+        if (!res.ok) throw new Error("Failed to fetch messages");
+        const data = await res.json();
+        lastMessages = data;
+        renderMessages(data);
+      } catch (err) {
+        chatErrorEl.textContent = "Could not sync messages. Check your endpoint or network.";
+      }
+    }
+
+    async function sendMessage(name, text) {
+      const payload = {
+        name: name || "Anonymous",
+        text: text,
+        createdAt: new Date().toISOString(),
+      };
+
+      try {
+        chatErrorEl.textContent = "";
+        const res = await fetch(chatEndpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error("Failed to send message");
+        chatInput.value = "";
+        await fetchMessages();
+      } catch (err) {
+        chatErrorEl.textContent = "Message failed to send.";
+      }
+    }
+
+    chatForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = chatInput.value.trim();
+      const name = chatNameInput.value.trim();
+      if (!text) return;
+      sendMessage(name, text);
+    });
+
+    fetchMessages();
+    setInterval(fetchMessages, 5000);
+  </script>
+</body>
+</html>
